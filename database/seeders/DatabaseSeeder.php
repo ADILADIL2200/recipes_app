@@ -15,6 +15,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+           // تشغيل seeders ديالك
+      $this->call([
+        CategorySeeder::class,
+        TagSeeder::class,
+    ]);
         // User::factory(10)->create();
 
         User::factory()->create([
