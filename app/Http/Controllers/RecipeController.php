@@ -7,8 +7,6 @@ use App\Models\Category;
 use App\Models\Tag;
 use App\Models\User;
 use App\Models\Rating;
-
-
 use App\Models\Favorite;
 
 use Illuminate\Http\Request;
@@ -18,29 +16,247 @@ use Illuminate\Support\Facades\Auth;
 
 class RecipeController extends Controller
 {
-    /**
-     * Display a listing of published recipes.
-     */
-  
+    // ──────────────────────────────────────────────────────────
+    // HOME / INDEX
+    // ──────────────────────────────────────────────────────────
+
+    public function index(Request $request)
+    {
+        $stats = [
+            'total_recipes'    => Recipe::where('is_published', true)->count(),
+            'total_users'      => User::count(),
+            'total_ratings'    => Rating::count(),
+            'total_categories' => Category::count(),
+            'total_tags'       => Tag::count(),
+            'pending_recipes'  => Recipe::where('is_published', false)->count(),
+        ];
+
+        $categories = Category::withCount('recipes')
+            ->orderByDesc('recipes_count')
+            ->limit(10)
+            ->get();
+
+        $tags = Tag::withCount('recipes')
+            ->having('recipes_count', '>', 0)
+            ->orderByDesc('recipes_count')
+            ->limit(20)
+            ->get();
+
+        $popularRecipes = Recipe::with(['category', 'ratings'])
+            ->where('is_published', true)
+            ->withAvg('ratings', 'score')
+            ->orderByDesc('ratings_avg_score')
+            ->limit(8)
+            ->get()
+            ->each(fn ($r) => $r->average_rating = $r->ratings_avg_score);
+
+        $recentRecipes = Recipe::with(['category', 'ratings'])
+            ->where('is_published', true)
+            ->withAvg('ratings', 'score')
+            ->latest()
+            ->limit(8)
+            ->get()
+            ->each(fn ($r) => $r->average_rating = $r->ratings_avg_score);
+
+        $userStats     = [];
+        $userFavorites = collect();
+
+        if (Auth::check()) {
+            $user = Auth::user();
+
+            if ($user->role !== 'admin') {
+                $userStats = [
+                    'my_recipes_count'   => Recipe::where('user_id', $user->id)->count(),
+                    'my_favorites_count' => Favorite::where('user_id', $user->id)->count(),
+                ];
+
+                $userFavorites = Favorite::with(['recipe.category'])
+                    ->where('user_id', $user->id)
+                    ->latest()
+                    ->limit(8)
+                    ->get()
+                    ->pluck('recipe')
+                    ->filter();
+            }
+        }
+
+        return view('home', compact(
+            'stats', 'categories', 'tags',
+            'popularRecipes', 'recentRecipes',
+            'userStats', 'userFavorites',
+        ));
+    }
+
+    // ──────────────────────────────────────────────────────────
+    // SEARCH  (Personne B — nouvelle méthode)
+    // ──────────────────────────────────────────────────────────
 
     /**
-     * Show the form for creating a new recipe.
+     * Search & filter published recipes.
+     *
+     * Query params :
+     *   q           — full-text (title, description, ingredients)
+     *   category_id — filter by category
+     *   tag_id      — filter by tag
+     *   max_time    — max prep_time + cook_time (minutes)
+     *   min_rating  — minimum average score (1-5)
+     *   sort        — date | rating | popularity | cook_time
      */
+    public function search(Request $request)
+    {
+        $query = Recipe::with(['category', 'tags', 'ratings'])
+            ->where('is_published', true)
+            ->withAvg('ratings', 'score')
+            ->withCount('favorites');
+
+        // Full-text search
+        if ($search = $request->input('q')) {
+            $like = '%' . $search . '%';
+            $query->where(function ($q) use ($like) {
+                $q->where('title',        'LIKE', $like)
+                  ->orWhere('description', 'LIKE', $like)
+                  ->orWhere('ingredients', 'LIKE', $like);
+            });
+        }
+
+        // Filter : category
+        if ($categoryId = $request->input('category_id')) {
+            $query->where('category_id', $categoryId);
+        }
+
+        // Filter : tag
+        if ($tagId = $request->input('tag_id')) {
+            $query->whereHas('tags', fn ($q) => $q->where('tags.id', $tagId));
+        }
+
+        // Filter : max total time
+        if ($maxTime = $request->input('max_time')) {
+            $query->whereRaw(
+                'COALESCE(prep_time, 0) + COALESCE(cook_time, 0) <= ?',
+                [$maxTime]
+            );
+        }
+
+        // Filter : minimum rating (requires HAVING because withAvg uses SELECT aggregate)
+        if ($minRating = $request->input('min_rating')) {
+            $query->having('ratings_avg_score', '>=', $minRating);
+        }
+
+        // Sort
+        switch ($request->input('sort', 'date')) {
+            case 'rating':
+                $query->orderByDesc('ratings_avg_score');
+                break;
+            case 'popularity':
+                $query->orderByDesc('favorites_count');
+                break;
+            case 'cook_time':
+                $query->orderBy('cook_time');
+                break;
+            default:
+                $query->latest();
+        }
+
+        $recipes = $query->paginate(12)->withQueryString();
+
+        $recipes->each(fn ($r) => $r->average_rating = $r->ratings_avg_score);
+
+        $categories = Category::orderBy('name')->get();
+        $tags       = Tag::orderBy('name')->get();
+
+        return view('recipes.search', compact('recipes', 'categories', 'tags'));
+    }
+
+    // ──────────────────────────────────────────────────────────
+    // BY CATEGORY / BY TAG
+    // ──────────────────────────────────────────────────────────
+
+    public function byCategory(Category $category)
+    {
+        $recipes = Recipe::with(['category', 'tags', 'ratings'])
+            ->where('is_published', true)
+            ->where('category_id', $category->id)
+            ->withAvg('ratings', 'score')
+            ->latest()
+            ->paginate(12);
+
+        $recipes->each(fn ($r) => $r->average_rating = $r->ratings_avg_score);
+
+        return view('recipes.by-category', compact('recipes', 'category'));
+    }
+
+    public function byTag(Tag $tag)
+    {
+        $recipes = Recipe::with(['category', 'tags', 'ratings'])
+            ->where('is_published', true)
+            ->whereHas('tags', fn ($q) => $q->where('tags.id', $tag->id))
+            ->withAvg('ratings', 'score')
+            ->latest()
+            ->paginate(12);
+
+        $recipes->each(fn ($r) => $r->average_rating = $r->ratings_avg_score);
+
+        return view('recipes.by-tag', compact('recipes', 'tag'));
+    }
+
+    // ──────────────────────────────────────────────────────────
+    // FAVORITES
+    // ──────────────────────────────────────────────────────────
+
+    public function favorites()
+    {
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        $favorites = Favorite::with(['recipe.category', 'recipe.tags', 'recipe.ratings'])
+            ->where('user_id', Auth::id())
+            ->latest()
+            ->paginate(12);
+
+        $favorites->each(function ($fav) {
+            if ($fav->recipe) {
+                $fav->recipe->average_rating = $fav->recipe->ratings->avg('score');
+            }
+        });
+
+        return view('recipes.favorites', compact('favorites'));
+    }
+
+    // ──────────────────────────────────────────────────────────
+    // MY RECIPES
+    // ──────────────────────────────────────────────────────────
+
+    public function myRecipes()
+    {
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        $recipes = Recipe::with(['category', 'tags'])
+            ->where('user_id', Auth::id())
+            ->latest()
+            ->paginate(12);
+
+        return view('recipes.my-recpes', compact('recipes'));
+    }
+
+    // ──────────────────────────────────────────────────────────
+    // CREATE / STORE
+    // ──────────────────────────────────────────────────────────
+
     public function create()
     {
         if (!Auth::check()) {
             return redirect()->route('login');
         }
- 
+
         $categories = Category::all();
-        $tags = Tag::all();
+        $tags       = Tag::all();
 
         return view('recipes.create', compact('categories', 'tags'));
     }
 
-    /**
-     * Store a newly created recipe.
-     */
     public function store(Request $request)
     {
         if (!Auth::check()) {
@@ -62,7 +278,7 @@ class RecipeController extends Controller
             'tags.*'       => 'exists:tags,id',
         ]);
 
-        // Generate unique slug
+        // Unique slug
         $validated['slug'] = Str::slug($validated['title']);
         $baseSlug = $validated['slug'];
         $count = 1;
@@ -70,7 +286,7 @@ class RecipeController extends Controller
             $validated['slug'] = $baseSlug . '-' . $count++;
         }
 
-        // Handle image upload
+        // Image upload
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('recipes', 'public');
         }
@@ -80,21 +296,21 @@ class RecipeController extends Controller
 
         $recipe = Recipe::create($validated);
 
-        // Sync tags
         if ($request->has('tags')) {
             $recipe->tags()->sync($request->tags);
         }
 
-        return redirect()->route('login', $recipe)
+        // ✅ FIXED: was redirect()->route('login', $recipe)
+        return redirect()->route('recipes.show', $recipe)
             ->with('success', 'Recipe created successfully.');
     }
 
-    /**
-     * Display the specified recipe.
-     */
+    // ──────────────────────────────────────────────────────────
+    // SHOW
+    // ──────────────────────────────────────────────────────────
+
     public function show(Recipe $recipe)
     {
-        // Block unpublished recipes from guests or non-owners
         if (!$recipe->is_published && Auth::id() !== $recipe->user_id) {
             abort(403, 'This recipe is not published.');
         }
@@ -104,16 +320,16 @@ class RecipeController extends Controller
         return view('recipes.show', compact('recipe'));
     }
 
-    /**
-     * Show the form for editing the specified recipe.
-     */
+    // ──────────────────────────────────────────────────────────
+    // EDIT / UPDATE
+    // ──────────────────────────────────────────────────────────
+
     public function edit(Recipe $recipe)
     {
         if (!Auth::check()) {
             return redirect()->route('login');
         }
 
-        // Only owner or admin can edit
         if (Auth::id() !== $recipe->user_id && Auth::user()->role !== 'admin') {
             abort(403, 'You do not have permission to edit this recipe.');
         }
@@ -124,16 +340,12 @@ class RecipeController extends Controller
         return view('recipes.edit', compact('recipe', 'categories', 'tags'));
     }
 
-    /**
-     * Update the specified recipe.
-     */
     public function update(Request $request, Recipe $recipe)
     {
         if (!Auth::check()) {
             return redirect()->route('login');
         }
 
-        // Only owner or admin can update
         if (Auth::id() !== $recipe->user_id && Auth::user()->role !== 'admin') {
             abort(403, 'You do not have permission to update this recipe.');
         }
@@ -163,7 +375,7 @@ class RecipeController extends Controller
             }
         }
 
-        // Handle image upload
+        // Image upload
         if ($request->hasFile('image')) {
             if ($recipe->image) {
                 Storage::disk('public')->delete($recipe->image);
@@ -175,23 +387,22 @@ class RecipeController extends Controller
 
         $recipe->update($validated);
 
-        // Sync tags
         $recipe->tags()->sync($request->tags ?? []);
 
         return redirect()->route('recipes.show', $recipe)
             ->with('success', 'Recipe updated successfully.');
     }
 
-    /**
-     * Remove the specified recipe.
-     */
+    // ──────────────────────────────────────────────────────────
+    // DESTROY
+    // ──────────────────────────────────────────────────────────
+
     public function destroy(Recipe $recipe)
     {
         if (!Auth::check()) {
             return redirect()->route('login');
         }
 
-        // Only owner or admin can delete
         if (Auth::id() !== $recipe->user_id && Auth::user()->role !== 'admin') {
             abort(403, 'You do not have permission to delete this recipe.');
         }
@@ -206,109 +417,4 @@ class RecipeController extends Controller
         return redirect()->route('recipes.index')
             ->with('success', 'Recipe deleted successfully.');
     }
-
-    /**
-     * List recipes belonging to the authenticated user.
-     */
-    public function myRecipes()
-    {
-        if (!Auth::check()) {
-            return redirect()->route('login');
-        }
-
-        $recipes = Recipe::with(['category', 'tags'])
-            ->where('user_id', Auth::id())
-            ->latest()
-            ->paginate(12);
-
-        return view('recipes.my-recpes', compact('recipes'));
-    }
-
-
-
-   public function index(Request $request)
-    {
-        // ── Global stats (used by guest hero & admin strip) ──────────
-        $stats = [
-            'total_recipes'     => Recipe::where('is_published', true)->count(),
-            'total_users'       => User::count(),
-            'total_ratings'     => Rating::count(),
-            'total_categories'  => Category::count(),
-            'total_tags'        => Tag::count(),
-            'pending_recipes'   => Recipe::where('is_published', false)->count(),
-        ];
-
-        // ── Categories for chips navigation ──────────────────────────
-        $categories = Category::withCount('recipes')
-            ->orderByDesc('recipes_count')
-            ->limit(10)
-            ->get();
-
-        // ── Tags for tag cloud ────────────────────────────────────────
-        $tags = Tag::withCount('recipes')
-            ->having('recipes_count', '>', 0)
-            ->orderByDesc('recipes_count')
-            ->limit(20)
-            ->get();
-
-        // ── Popular recipes (top rated, published) ────────────────────
-        $popularRecipes = Recipe::with(['category', 'ratings'])
-            ->where('is_published', true)
-            ->withAvg('ratings', 'score')          // ratings_avg_score
-            ->orderByDesc('ratings_avg_score')
-            ->limit(8)
-            ->get()
-            ->each(fn ($r) => $r->average_rating = $r->ratings_avg_score);
-
-        // ── Recent recipes (published) ────────────────────────────────
-        $recentRecipes = Recipe::with(['category', 'ratings'])
-            ->where('is_published', true)
-            ->withAvg('ratings', 'score')
-            ->latest()
-            ->limit(8)
-            ->get()
-            ->each(fn ($r) => $r->average_rating = $r->ratings_avg_score);
-
-        // ── Per-user data (only when logged in) ───────────────────────
-        $userStats     = [];
-        $userFavorites = collect();
-
-        if (Auth::check()) {
-            $user = Auth::user();
-
-            if ($user->role !== 'admin') {
-                // Standard user: personal stats & favorites preview
-                $userStats = [
-                    'my_recipes_count'   => Recipe::where('user_id', $user->id)->count(),
-                    'my_favorites_count' => Favorite::where('user_id', $user->id)->count(),
-                ];
-
-                $userFavorites = Favorite::with(['recipe.category'])
-                    ->where('user_id', $user->id)
-                    ->latest()
-                    ->limit(8)
-                    ->get()
-                    ->pluck('recipe')
-                    ->filter(); // remove nulls in case recipe was deleted
-            }
-        }
-
-        return view('home', compact(
-            'stats',
-            'categories',
-            'tags',
-            'popularRecipes',
-            'recentRecipes',
-            'userStats',
-            'userFavorites',
-        ));
-    }
 }
-
-
-
-
-
-
-
-

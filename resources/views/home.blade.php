@@ -582,7 +582,7 @@
 
         @auth
             <a href="{{ route('recipes.my') }}">My Recipes</a>
-            <a href="{{ route('recipes.create') }}" class="btn btn-primary">+ New Recipe</a>
+            <a href="{{ route('recipes.create') }}" class="btn btn-primary"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New Recipe</a>
             <form method="POST" action="{{ route('logout') }}" style="display:inline">
                 @csrf
                 <button type="submit" class="btn btn-ghost">Log out</button>
@@ -672,16 +672,16 @@
     </div>
     <div class="hero-visual">
         <div class="hero-img-wrap">
-            <div class="hero-img-icon">🍳</div>
+            <div class="hero-img-icon"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="opacity:.35"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
         </div>
         <div class="hero-float-badge">
-            <div class="badge-icon">⭐</div>
+            <div class="badge-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#c8972a" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
             <div>
                 <div class="badge-label">Top rated today</div>
                 <div class="badge-val">4.9 / 5.0</div>
             </div>
         </div>
-        <div class="hero-float-tag">🔥 Trending now</div>
+        <div class="hero-float-tag"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> Trending now</div>
     </div>
 </div>
 @endguest
@@ -707,7 +707,7 @@
             </div>
         </div>
         <div class="user-welcome-actions">
-            <a href="{{ route('recipes.create') }}" class="btn btn-primary">+ New Recipe</a>
+            <a href="{{ route('recipes.create') }}" class="btn btn-primary"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New Recipe</a>
             <a href="{{ route('recipes.my') }}" class="btn btn-ghost">My Recipes</a>
         </div>
     </div>
@@ -746,7 +746,7 @@
                 @if($recipe->image)
                     <img src="{{ asset('storage/' . $recipe->image) }}" alt="{{ $recipe->title }}" />
                 @else
-                    🍽️
+                    <div style="opacity:.25"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="opacity:.35"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
                 @endif
                 @if($recipe->category)
                     <span class="cat-badge">{{ $recipe->category->name }}</span>
@@ -757,15 +757,15 @@
                 <div class="recipe-meta">
                     @if($recipe->average_rating)
                         <span class="stars">
-                            @for($i=1;$i<=5;$i++){{ $i <= round($recipe->average_rating) ? '★' : '☆' }}@endfor
+                            @for($i=1;$i<=5;$i++){{ $i <= round($recipe->average_rating) ? '●' : '○' }}@endfor
                         </span>
                         <span>{{ number_format($recipe->average_rating, 1) }}</span>
                     @endif
                     @if($recipe->cook_time)
-                        <span>⏱ {{ $recipe->cook_time }} min</span>
+                        <span><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> {{ $recipe->cook_time }} min</span>
                     @endif
                     @if($recipe->servings)
-                        <span>🍽 {{ $recipe->servings }}</span>
+                        <span><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="opacity:.35"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> {{ $recipe->servings }}</span>
                     @endif
                 </div>
             </div>
@@ -789,7 +789,7 @@
                 @if($recipe->image)
                     <img src="{{ asset('storage/' . $recipe->image) }}" alt="{{ $recipe->title }}" />
                 @else
-                    🥘
+                    <div style="opacity:.25"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="opacity:.35"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
                 @endif
                 @if($recipe->category)
                     <span class="cat-badge">{{ $recipe->category->name }}</span>
@@ -799,10 +799,10 @@
                 <h3>{{ $recipe->title }}</h3>
                 <div class="recipe-meta">
                     @if($recipe->average_rating)
-                        <span>⭐ {{ number_format($recipe->average_rating, 1) }}</span>
+                        <span><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#c8972a" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> {{ number_format($recipe->average_rating, 1) }}</span>
                     @endif
                     @if($recipe->cook_time)
-                        <span>⏱ {{ $recipe->cook_time }} min</span>
+                        <span><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> {{ $recipe->cook_time }} min</span>
                     @endif
                     <span>{{ $recipe->created_at->diffForHumans() }}</span>
                 </div>
@@ -828,7 +828,7 @@
                 @if($recipe->image)
                     <img src="{{ asset('storage/' . $recipe->image) }}" alt="{{ $recipe->title }}" />
                 @else
-                    ❤️
+                    <div style="opacity:.25"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
                 @endif
                 @if($recipe->category)
                     <span class="cat-badge">{{ $recipe->category->name }}</span>
@@ -837,8 +837,8 @@
             <div class="recipe-card-body">
                 <h3>{{ $recipe->title }}</h3>
                 <div class="recipe-meta">
-                    @if($recipe->cook_time) <span>⏱ {{ $recipe->cook_time }} min</span> @endif
-                    @if($recipe->servings)  <span>🍽 {{ $recipe->servings }}</span> @endif
+                    @if($recipe->cook_time) <span><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> {{ $recipe->cook_time }} min</span> @endif
+                    @if($recipe->servings)  <span><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="opacity:.35"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> {{ $recipe->servings }}</span> @endif
                 </div>
             </div>
         </a>
@@ -876,7 +876,7 @@
 @endguest
 
 <footer>
-    <p>© {{ date('Y') }} <a href="{{ route('home') }}">Saveur</a> — made with ❤️ for home cooks everywhere.</p>
+    <p>© {{ date('Y') }} <a href="{{ route('home') }}">Saveur</a> — made for home cooks everywhere.</p>
 </footer>
 
 </body>

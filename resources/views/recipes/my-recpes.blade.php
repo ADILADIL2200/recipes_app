@@ -369,7 +369,7 @@
         <a href="{{ route('recipes.index') }}">Recipes</a>
         <a href="{{ route('recipes.search') }}">Browse</a>
         <a href="{{ route('recipes.my') }}" class="active">My Recipes</a>
-        <a href="{{ route('recipes.create') }}" class="btn btn-primary">+ New Recipe</a>
+        <a href="{{ route('recipes.create') }}" class="btn btn-primary"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New Recipe</a>
         <form method="POST" action="{{ route('logout') }}" style="display:inline">
             @csrf
             <button type="submit" class="btn btn-ghost">Log out</button>
@@ -384,28 +384,28 @@
         <h1>Your <span>recipes</span></h1>
         <p>Everything you've created, all in one place.</p>
     </div>
-    <a href="{{ route('recipes.create') }}" class="btn btn-primary">+ New Recipe</a>
+    <a href="{{ route('recipes.create') }}" class="btn btn-primary"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New Recipe</a>
 </div>
 
 {{-- ── STATS BAR ── --}}
 <div style="max-width:1180px;margin:2rem auto 0;padding:0 2.5rem">
     <div class="stats-bar" style="margin:0;padding:0">
         <div class="stat-cell">
-            <div class="stat-cell-icon orange">📄</div>
+            <div class="stat-cell-icon orange"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#b84a1c" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
             <div>
                 <div class="num">{{ $recipes->total() }}</div>
                 <div class="lbl">Total recipes</div>
             </div>
         </div>
         <div class="stat-cell">
-            <div class="stat-cell-icon green">✅</div>
+            <div class="stat-cell-icon green"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#3d5c36" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
             <div>
                 <div class="num">{{ $recipes->getCollection()->where('is_published', true)->count() }}</div>
                 <div class="lbl">Published</div>
             </div>
         </div>
         <div class="stat-cell">
-            <div class="stat-cell-icon gold">✏️</div>
+            <div class="stat-cell-icon gold"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#c8972a" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
             <div>
                 <div class="num">{{ $recipes->getCollection()->where('is_published', false)->count() }}</div>
                 <div class="lbl">Drafts</div>
@@ -422,7 +422,7 @@
         <button class="filter-tab" onclick="filterCards('draft')">Drafts</button>
     </div>
     <div class="filter-bar-right">
-        <a href="{{ route('recipes.create') }}" class="btn btn-outline btn-sm">+ New Recipe</a>
+        <a href="{{ route('recipes.create') }}" class="btn btn-outline btn-sm"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New Recipe</a>
     </div>
 </div>
 
@@ -430,7 +430,7 @@
 <div class="content-wrap">
     @if($recipes->isEmpty())
         <div class="empty-state">
-            <div class="empty-icon">🍳</div>
+            <div class="empty-icon"><svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" style="opacity:.3"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg></div>
             <h2>No recipes yet</h2>
             <p>You haven't created any recipes. Share your first dish with the world!</p>
             <a href="{{ route('recipes.create') }}" class="btn btn-primary">Create your first recipe</a>
@@ -445,7 +445,7 @@
                     @if($recipe->image)
                         <img src="{{ asset('storage/' . $recipe->image) }}" alt="{{ $recipe->title }}" />
                     @else
-                        🍽️
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" style="opacity:.18"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>
                     @endif
                     <div class="card-badges">
                         @if($recipe->category)
@@ -480,13 +480,13 @@
 
                     <div class="card-meta">
                         @if($recipe->cook_time)
-                            <span>⏱ {{ $recipe->cook_time }} min</span>
+                            <span><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> {{ $recipe->cook_time }} min</span>
                         @endif
                         @if($recipe->prep_time)
-                            <span>🔪 {{ $recipe->prep_time }} min prep</span>
+                            <span><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> {{ $recipe->prep_time }} min prep</span>
                         @endif
                         @if($recipe->servings)
-                            <span>🍽 {{ $recipe->servings }} servings</span>
+                            <span><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="opacity:.35"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> {{ $recipe->servings }} servings</span>
                         @endif
                         <span>{{ $recipe->created_at->diffForHumans() }}</span>
                     </div>

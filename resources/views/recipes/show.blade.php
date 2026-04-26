@@ -405,7 +405,7 @@
         <a href="{{ route('recipes.search') }}">Browse</a>
         @auth
             <a href="{{ route('recipes.my') }}">My Recipes</a>
-            <a href="{{ route('recipes.create') }}" class="btn btn-primary">+ New Recipe</a>
+            <a href="{{ route('recipes.create') }}" class="btn btn-primary"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New Recipe</a>
             <form method="POST" action="{{ route('logout') }}" style="display:inline">
                 @csrf
                 <button type="submit" class="btn btn-ghost">Log out</button>
@@ -422,7 +422,7 @@
     @if($recipe->image)
         <img src="{{ asset('storage/' . $recipe->image) }}" alt="{{ $recipe->title }}" />
     @else
-        <div class="recipe-hero-placeholder">🍽️</div>
+        <div class="recipe-hero-placeholder"><svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="opacity:.12"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg></div>
     @endif
     <div class="recipe-hero-overlay"></div>
     <div class="recipe-hero-meta">
@@ -481,7 +481,7 @@
         {{-- Draft warning --}}
         @if(!$recipe->is_published)
         <div class="draft-notice">
-            ✏️ &nbsp;<strong>Draft</strong> — this recipe is not published yet and is only visible to you.
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> <strong>Draft</strong> — this recipe is not published yet and is only visible to you.
         </div>
         @endif
 
@@ -490,11 +490,11 @@
         @if(Auth::id() === $recipe->user_id || Auth::user()->role === 'admin')
         <div class="owner-actions">
             <span class="owner-actions-label">Manage this recipe</span>
-            <a href="{{ route('recipes.edit', $recipe) }}" class="btn btn-outline btn-sm">✏️ Edit</a>
+            <a href="{{ route('recipes.edit', $recipe) }}" class="btn btn-outline btn-sm"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit</a>
             <form method="POST" action="{{ route('recipes.destroy', $recipe) }}"
                   onsubmit="return confirm('Delete \'{{ addslashes($recipe->title) }}\'? This cannot be undone.')">
                 @csrf @method('DELETE')
-                <button type="submit" class="btn btn-danger btn-sm">🗑 Delete</button>
+                <button type="submit" class="btn btn-danger btn-sm"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Delete</button>
             </form>
         </div>
         @endif
@@ -605,7 +605,7 @@
                 <div class="rating-display">
                     <span class="stars-big">
                         @for($i = 1; $i <= 5; $i++)
-                            {{ $i <= round($avg) ? '★' : '☆' }}
+                            {{ $i <= round($avg) ? '●' : '○' }}
                         @endfor
                     </span>
                     <span class="rating-val">{{ number_format($avg, 1) }}</span>
@@ -623,7 +623,7 @@
                     <div class="star-picker">
                         @for($i = 5; $i >= 1; $i--)
                         <input type="radio" name="score" id="star{{ $i }}" value="{{ $i }}">
-                        <label for="star{{ $i }}">★</label>
+                        <label for="star{{ $i }}">●</label>
                         @endfor
                     </div>
                     <button type="submit" class="btn btn-primary btn-sm" style="margin-top:.6rem;width:100%;justify-content:center">Submit rating</button>
@@ -664,7 +664,7 @@
 </div>
 
 <footer>
-    <p>© {{ date('Y') }} <a href="{{ route('home') }}">Saveur</a> — made with ❤️ for home cooks everywhere.</p>
+    <p>© {{ date('Y') }} <a href="{{ route('home') }}">Saveur</a> — made for home cooks everywhere.</p>
 </footer>
 
 </body>
