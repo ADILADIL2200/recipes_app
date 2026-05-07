@@ -2,39 +2,32 @@
 
 namespace Database\Seeders;
 
+use App\Models\Category;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class CategorySeeder extends Seeder
 {
     public function run(): void
     {
-        DB::table('categories')->insert([
-            [
-                'name' => 'Technology',
-                'slug' => Str::slug('Technology'),
-                'description' => 'All tech related topics',
-                'icon' => 'tech-icon.png',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'name' => 'Sports',
-                'slug' => Str::slug('Sports'),
-                'description' => 'Sports news and updates',
-                'icon' => 'sports-icon.png',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'name' => 'Health',
-                'slug' => Str::slug('Health'),
-                'description' => 'Health and wellness',
-                'icon' => 'health-icon.png',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-        ]);
+        $categories = [
+            ['name' => 'Entrées',        'icon' => '🥗', 'description' => 'Soupes, salades et amuse-bouches'],
+            ['name' => 'Plats',          'icon' => '🍽️', 'description' => 'Plats principaux chauds et froids'],
+            ['name' => 'Desserts',       'icon' => '🍰', 'description' => 'Gâteaux, tartes et douceurs'],
+            ['name' => 'Soupes',         'icon' => '🍲', 'description' => 'Soupes et veloutés'],
+            ['name' => 'Salades',        'icon' => '🥙', 'description' => 'Salades composées et fraîches'],
+            ['name' => 'Boissons',       'icon' => '🥤', 'description' => 'Jus, smoothies et cocktails'],
+            ['name' => 'Petit déjeuner', 'icon' => '🥐', 'description' => 'Recettes du matin'],
+            ['name' => 'Snacks',         'icon' => '🍿', 'description' => 'En-cas et collations'],
+        ];
+
+        foreach ($categories as $cat) {
+            Category::create([
+                'name'        => $cat['name'],
+                'slug'        => Str::slug($cat['name']),
+                'icon'        => $cat['icon'],
+                'description' => $cat['description'],
+            ]);
+        }
     }
 }

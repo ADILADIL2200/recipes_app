@@ -1,59 +1,41 @@
 @extends('layouts.app')
 
-@section('title', 'Inscription')
+@section('title', 'Réinitialiser le mot de passe')
 
 @section('content')
 <div class="min-h-screen flex items-center justify-center">
     <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 w-full max-w-md">
 
-        {{-- Logo / Titre --}}
         <div class="text-center mb-8">
-            <div class="text-4xl mb-2">🍽️</div>
-            <h1 class="text-2xl font-semibold text-gray-800">Créer un compte</h1>
-            <p class="text-gray-500 text-sm mt-1">Rejoignez la communauté</p>
+            <div class="text-4xl mb-2">🔒</div>
+            <h1 class="text-2xl font-semibold text-gray-800">Nouveau mot de passe</h1>
+            <p class="text-gray-500 text-sm mt-1">Choisissez un mot de passe sécurisé</p>
         </div>
 
-        {{-- Erreurs --}}
         @if($errors->any())
             <div class="bg-red-50 text-red-700 border border-red-200 rounded-lg px-4 py-3 mb-6 text-sm">
-                <ul class="space-y-1">
-                    @foreach($errors->all() as $error)
-                        <li>• {{ $error }}</li>
-                    @endforeach
-                </ul>
+                {{ $errors->first() }}
             </div>
         @endif
 
-        {{-- Formulaire --}}
-        <form action="{{ route('signup') }}" method="POST" class="space-y-5">
+        <form action="{{ route('password.update') }}" method="POST" class="space-y-5">
             @csrf
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Nom complet</label>
-                <input
-                    type="text"
-                    name="name"
-                    value="{{ old('name') }}"
-                    required
-                    class="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent"
-                    placeholder="Votre nom"
-                >
-            </div>
+            <input type="hidden" name="token" value="{{ $token }}">
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
                 <input
                     type="email"
                     name="email"
-                    value="{{ old('email') }}"
+                    value="{{ old('email', $email) }}"
                     required
                     class="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent"
-                    placeholder="vous@exemple.com"
                 >
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Nouveau mot de passe</label>
                 <input
                     type="password"
                     name="password"
@@ -74,18 +56,11 @@
                 >
             </div>
 
-            <button
-                type="submit"
-                class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2.5 rounded-lg text-sm transition"
-            >
-                Créer mon compte
+            <button type="submit"
+                class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2.5 rounded-lg text-sm transition">
+                Réinitialiser le mot de passe
             </button>
         </form>
-
-        <p class="text-center text-sm text-gray-500 mt-6">
-            Déjà un compte ?
-            <a href="{{ route('login') }}" class="text-green-600 hover:underline font-medium">Se connecter</a>
-        </p>
 
     </div>
 </div>

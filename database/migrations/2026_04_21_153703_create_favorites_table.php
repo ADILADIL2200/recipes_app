@@ -1,24 +1,23 @@
 <?php
 
-namespace App\Models;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-
-class Favorite extends Model
+return new class extends Migration
 {
-    protected $fillable = [
-        'user_id',
-        'recipe_id',
-    ];
-
-    public function user(): BelongsTo
+    public function up(): void
     {
-        return $this->belongsTo(User::class);
+        Schema::create('favorites', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('recipe_id')->constrained()->cascadeOnDelete();
+            $table->timestamps();
+        });
     }
 
-    public function recipe(): BelongsTo
+    public function down(): void
     {
-        return $this->belongsTo(Recipe::class);
+        Schema::dropIfExists('favorites');
     }
-}
+};
