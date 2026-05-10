@@ -1,82 +1,100 @@
+{{-- resources/views/admin/users/index.blade.php --}}
 @extends('layouts.app')
+
 @section('title', 'Utilisateurs')
+
+@section('styles')
+<style>
+.admin-page-head { margin-bottom: 2rem; display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+.admin-page-head h1 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600; color: var(--ink); }
+.admin-page-head h1 em { font-style: italic; color: var(--accent); }
+.admin-page-head p { font-size: .88rem; color: var(--ink-3); margin-top: .25rem; }
+.table-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; }
+.table-actions { display: flex; align-items: center; gap: .5rem; justify-content: flex-end; }
+.pagination-wrap { padding: 1rem 1.5rem; border-top: 1px solid var(--border); }
+.user-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--accent-lt); display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: .95rem; font-weight: 600; color: var(--accent); flex-shrink: 0; overflow: hidden; }
+.user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.user-cell { display: flex; align-items: center; gap: .75rem; }
+.user-cell-name { font-weight: 500; color: var(--ink); font-size: .88rem; }
+.user-cell-date { font-size: .75rem; color: var(--ink-3); }
+</style>
+@endsection
+
 @section('content')
-<div class="min-h-screen bg-gray-50 py-10">
-    <div class="max-w-5xl mx-auto px-4">
+<div class="page-wrap">
 
-        <div class="mb-6 flex items-center justify-between">
-            <h1 class="text-2xl font-semibold text-gray-800">Utilisateurs</h1>
-            <a href="{{ route('admin.dashboard') }}" class="text-sm text-green-600 hover:underline">← Dashboard</a>
+    <div class="admin-page-head">
+        <div>
+            <div style="display:inline-block;width:36px;height:3px;background:var(--accent);border-radius:2px;margin-bottom:.65rem"></div>
+            <h1><em>Utilisateurs</em></h1>
+            <p>Gestion des comptes et des rôles</p>
         </div>
+        <a href="{{ route('admin.dashboard') }}" class="btn btn-ghost btn-sm">&larr; Dashboard</a>
+    </div>
 
-        @if(session('success'))
-            <div class="bg-green-50 text-green-700 border border-green-200 rounded-lg px-4 py-3 mb-6 text-sm">
-                {{ session('success') }}
-            </div>
-        @endif
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+    @if(session('error'))
+        <div class="alert alert-error">{{ session('error') }}</div>
+    @endif
 
-        @if(session('error'))
-            <div class="bg-red-50 text-red-700 border border-red-200 rounded-lg px-4 py-3 mb-6 text-sm">
-                {{ session('error') }}
-            </div>
-        @endif
-
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            <table class="w-full text-sm">
-                <thead class="bg-gray-50 border-b border-gray-100">
-                    <tr>
-                        <th class="text-left px-6 py-3 text-gray-600 font-medium">Nom</th>
-                        <th class="text-left px-6 py-3 text-gray-600 font-medium">Email</th>
-                        <th class="text-left px-6 py-3 text-gray-600 font-medium">Rôle</th>
-                        <th class="text-left px-6 py-3 text-gray-600 font-medium">Inscrit le</th>
-                        <th class="text-right px-6 py-3 text-gray-600 font-medium">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-50">
-                    @foreach($users as $user)
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 font-medium text-gray-800">{{ $user->name }}</td>
-                        <td class="px-6 py-4 text-gray-600">{{ $user->email }}</td>
-                        <td class="px-6 py-4">
-                            <span class="inline-flex px-2 py-1 rounded-full text-xs font-medium
-                                {{ $user->role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-600' }}">
-                                {{ $user->role }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 text-gray-500">{{ $user->created_at->format('d/m/Y') }}</td>
-                        <td class="px-6 py-4 text-right">
-                            <div class="flex items-center justify-end gap-2">
-                                {{-- Toggle rôle --}}
-                                <form action="{{ route('admin.users.toggle', $user) }}" method="POST">
-                                    @csrf @method('PATCH')
-                                    <button type="submit"
-                                        class="text-xs px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-600">
-                                        {{ $user->role === 'admin' ? '→ User' : '→ Admin' }}
-                                    </button>
-                                </form>
-                                {{-- Supprimer --}}
-                                @if($user->id !== auth()->id())
-                                <form action="{{ route('admin.users.destroy', $user) }}" method="POST"
-                                      onsubmit="return confirm('Supprimer cet utilisateur ?')">
-                                    @csrf @method('DELETE')
-                                    <button type="submit"
-                                        class="text-xs px-3 py-1.5 rounded-lg border border-red-200 hover:bg-red-50 text-red-600">
-                                        Supprimer
-                                    </button>
-                                </form>
+    <div class="table-panel">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Utilisateur</th>
+                    <th>E-mail</th>
+                    <th>Rôle</th>
+                    <th>Inscrit le</th>
+                    <th style="text-align:right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($users as $user)
+                <tr>
+                    <td>
+                        <div class="user-cell">
+                            <div class="user-avatar">
+                                @if($user->avatar)
+                                    <img src="{{ asset('storage/' . $user->avatar) }}" alt="">
+                                @else
+                                    {{ strtoupper(substr($user->name, 0, 1)) }}
                                 @endif
                             </div>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-
-            <div class="px-6 py-4 border-t border-gray-100">
-                {{ $users->links() }}
-            </div>
-        </div>
-
+                            <span class="user-cell-name">{{ $user->name }}</span>
+                        </div>
+                    </td>
+                    <td style="color:var(--ink-2);font-size:.86rem">{{ $user->email }}</td>
+                    <td>
+                        <span class="badge {{ $user->role === 'admin' ? 'badge-accent' : 'badge-muted' }}">
+                            {{ $user->role }}
+                        </span>
+                    </td>
+                    <td><span class="user-cell-date">{{ $user->created_at->format('d/m/Y') }}</span></td>
+                    <td>
+                        <div class="table-actions">
+                            <form action="{{ route('admin.users.toggle', $user) }}" method="POST">
+                                @csrf @method('PATCH')
+                                <button type="submit" class="btn btn-ghost btn-sm">
+                                    {{ $user->role === 'admin' ? 'Rétrograder' : 'Promouvoir admin' }}
+                                </button>
+                            </form>
+                            @if($user->id !== auth()->id())
+                            <form action="{{ route('admin.users.destroy', $user) }}" method="POST"
+                                  onsubmit="return confirm('Supprimer « {{ $user->name }} » définitivement ?')">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                            </form>
+                            @endif
+                        </div>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+        <div class="pagination-wrap">{{ $users->links() }}</div>
     </div>
+
 </div>
 @endsection

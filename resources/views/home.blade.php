@@ -573,23 +573,20 @@
     <div class="flash">{{ session('success') }}</div>
 @endif
 
-{{-- ── NAV ── --}}
 <nav>
     <a href="{{ route('home') }}" class="nav-brand">Saveur</a>
     <div class="nav-links">
-        <a href="{{ route('recipes.index') }}">Recipes</a>
         <a href="{{ route('recipes.search') }}">Browse</a>
-
         @auth
             <a href="{{ route('recipes.my') }}">My Recipes</a>
             <a href="{{ route('recipes.create') }}" class="btn btn-primary">+ New Recipe</a>
             <form method="POST" action="{{ route('logout') }}" style="display:inline">
                 @csrf
-                <button type="submit" class="btn btn-ghost">Log out</button>
+                <button type="submit" class="btn btn-ghost">Logout</button>
             </form>
         @else
-            <a href="{{ route('login') }}" class="btn btn-outline">Log in</a>
-            <a href="{{ route('signup') }}" class="btn btn-primary">Join free</a>
+            <a href="{{ route('login') }}" class="btn btn-outline">Login</a>
+            <a href="{{ route('signup') }}" class="btn btn-primary">Join Free</a>
         @endauth
     </div>
 </nav>
@@ -605,7 +602,7 @@
                 <p>Live platform overview</p>
             </div>
             <div class="admin-actions">
-                <a href="{{ route('admin.recipes') }}" class="btn-admin-primary">Manage recipes</a>
+                <a href="{{ route('admin.dashboard') }}" class="btn-admin-primary">Manage recipes</a>
                 <a href="{{ route('admin.users') }}" class="btn-admin-ghost">Manage users</a>
             </div>
         </div>

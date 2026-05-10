@@ -4,14 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;                    // Hash::make retiré, plus besoin
+use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
+    // ── Signup ────────────────────────────────────────
     public function showSignup()
     {
-        return view('signup');     // ← renommé auth.signup (bonne pratique)
+        return view('signup');
     }
 
     public function signup(Request $request)
@@ -19,40 +20,49 @@ class UserController extends Controller
         $request->validate([
             'name'     => 'required|string|max:255',
             'email'    => 'required|email|unique:users,email',
-            'password' => 'required|min:8|confirmed', // ← min:6 → min:8
+            'password' => 'required|min:8|confirmed',
         ]);
 
         User::create([
             'name'     => $request->name,
             'email'    => $request->email,
-            'password' => $request->password, // ← Hash::make retiré, cast 'hashed' s'en charge
+            'password' => $request->password, // cast 'hashed' gère le hash
             'role'     => 'user',
         ]);
 
-        return redirect()->route('login')->with('success', 'Compte créé !');
+        return redirect()->route('login')->with('success', 'Compte créé ! Connectez-vous.');
     }
 
+    // ── Login ─────────────────────────────────────────
     public function showLogin()
     {
-        return view('login');      // ← renommé auth.login
+        return view('login');
     }
 
     public function login(Request $request)
     {
-        $request->validate([           // ← NOUVEAU : validation avant attempt
+        $request->validate([
             'email'    => 'required|email',
             'password' => 'required',
         ]);
 
-        if (Auth::attempt($request->only('email', 'password'))) {
+        if (Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
             $request->session()->regenerate();
-            return redirect()->intended(route('home')); // ← intended() au lieu de route()
+
+            // Redirection selon le rôle
+            if (Auth::user()->role === 'admin') {
+                return redirect()->route('admin.dashboard');
+            }
+
+            return redirect()->intended(route('home'));
         }
 
-        return back()->withErrors(['email' => 'Email ou mot de passe incorrect.'])
-                     ->onlyInput('email'); // ← NOUVEAU : garde l'email dans le champ
+        return back()
+            ->withErrors(['email' => 'Email ou mot de passe incorrect.'])
+            ->onlyInput('email');
     }
 
+    // ── Logout ────────────────────────────────────────
     public function logout(Request $request)
     {
         Auth::logout();
@@ -61,41 +71,40 @@ class UserController extends Controller
         return redirect()->route('login');
     }
 
-    // ── Profil ─────────────────────────────────── NOUVEAU
-
+    // ── Profil ────────────────────────────────────────
     public function showProfile()
     {
-        return view('profile.edit', ['user' => Auth::user()]);
+        $user = Auth::user();
+        return view('profile.edit', compact('user'));
     }
 
     public function updateProfile(Request $request)
-{
-    $user = Auth::user();
+    {
+        $user = Auth::user();
 
-    $request->validate([
-        'name'     => 'required|string|max:255',
-        'email'    => 'required|email|unique:users,email,' . $user->id,
-        'bio'      => 'nullable|string|max:500',
-        'avatar'   => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-        'password' => 'nullable|min:8|confirmed',
-    ]);
+        $request->validate([
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email,' . $user->id,
+            'bio'      => 'nullable|string|max:500',
+            'avatar'   => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'password' => 'nullable|min:8|confirmed',
+        ]);
 
-    $data = $request->only('name', 'email', 'bio');
+        $data = $request->only('name', 'email', 'bio');
 
-    if ($request->hasFile('avatar')) {
-        // Supprimer l'ancien avatar s'il existe  ← NOUVEAU
-        if ($user->avatar) {
-            Storage::disk('public')->delete($user->avatar);
+        if ($request->hasFile('avatar')) {
+            if ($user->avatar) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+            $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
         }
-        $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
+
+        if ($request->filled('password')) {
+            $data['password'] = $request->password;
+        }
+
+        $user->update($data);
+
+        return back()->with('success', 'Profil mis à jour !');
     }
-
-    if ($request->filled('password')) {
-        $data['password'] = $request->password;
-    }
-
-    $user->update($data);
-
-    return back()->with('success', 'Profil mis à jour !');
-}
 }
