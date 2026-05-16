@@ -51,6 +51,8 @@ Route::middleware('auth')->group(function () {
     // Profil
     Route::get('/profile', [UserController::class, 'showProfile'])->name('profile.edit');
     Route::put('/profile', [UserController::class, 'updateProfile'])->name('profile.update');
+    Route::post('/favorites', [RecipeController::class, 'store_recipe'])
+    ->name('favorites');
 });
 
 // Show public (la méthode gère l'accès aux brouillons)
@@ -81,7 +83,8 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::delete('/tags/{tag}',  [AdminController::class, 'destroyTag'])->name('tags.destroy');
 
     // Recipes admin
-    Route::get   ('/recipes',                 [AdminController::class, 'recipes'])       ->name('recipes');
-    Route::patch ('/recipes/{recipe}/toggle', [AdminController::class, 'toggleRecipe'])  ->name('recipes.toggle');
+   Route::patch ('/recipes/{recipe}/toggle', [AdminController::class, 'toggleRecipe'])  ->name('recipes.toggle');
     Route::delete('/recipes/{recipe}',        [AdminController::class, 'destroyRecipe']) ->name('recipes.destroy');
+   
 });
+

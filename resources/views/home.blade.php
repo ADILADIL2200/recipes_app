@@ -1,880 +1,793 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Saveur — Recipes Worth Making</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['Playfair Display', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#fdf6f3',
+                            100: '#f5ede7',
+                            200: '#e8d5c8',
+                            300: '#d4b8a4',
+                            400: '#c4957a',
+                            500: '#b84a1c',
+                            600: '#a03d15',
+                            700: '#7a2e10',
+                            800: '#5a220c',
+                            900: '#3d1708',
+                        },
+                        warm: {
+                            50: '#faf8f5',
+                            100: '#f5f0ea',
+                            200: '#e8e0d4',
+                            300: '#d4c8b8',
+                            400: '#b8a898',
+                            500: '#9a8e7e',
+                            600: '#7a6e5e',
+                            700: '#5a4e3c',
+                            800: '#3d3528',
+                            900: '#18140e',
+                        },
+                        sage: {
+                            50: '#f0f5ee',
+                            100: '#eaf2e8',
+                            200: '#c8d9c2',
+                            300: '#a3bf9a',
+                            400: '#7aa370',
+                            500: '#3d5c36',
+                            600: '#334d2d',
+                            700: '#2a3f25',
+                        },
+                        gold: {
+                            50: '#fef9f0',
+                            100: '#fef6e4',
+                            200: '#f5e4b8',
+                            300: '#ecd18a',
+                            400: '#e0bc5c',
+                            500: '#c8972a',
+                            600: '#a87d1f',
+                            700: '#8a6619',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        :root {
-            --bg:        #f9f6f1;
-            --surface:   #ffffff;
-            --ink:       #18140e;
-            --ink-2:     #5a4e3c;
-            --ink-3:     #9a8e7e;
-            --accent:    #b84a1c;
-            --accent-lt: #f5ede7;
-            --gold:      #c8972a;
-            --sage:      #3d5c36;
-            --border:    #e8e0d4;
-            --r-sm:      8px;
-            --r-md:      14px;
-            --r-lg:      22px;
+        .gradient-mesh {
+            background: 
+                radial-gradient(ellipse at 20% 50%, rgba(184, 74, 28, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(61, 92, 54, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 60% 80%, rgba(200, 151, 42, 0.06) 0%, transparent 50%),
+                linear-gradient(180deg, #faf8f5 0%, #f5f0ea 100%);
         }
-
-        body {
-            font-family: 'Outfit', sans-serif;
-            background: var(--bg);
-            color: var(--ink);
-            min-height: 100vh;
-            -webkit-font-smoothing: antialiased;
+        .card-hover {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
-        /* ── FLASH ── */
-        .flash {
-            background: var(--sage);
-            color: #fff;
-            text-align: center;
-            padding: .6rem 1rem;
-            font-size: .85rem;
-            letter-spacing: .02em;
+        .card-hover:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 25px 50px -12px rgba(24, 20, 14, 0.15);
         }
-
-        /* ── NAV ── */
-        nav {
-            position: sticky; top: 0; z-index: 200;
-            background: rgba(249, 246, 241, 0.92);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--border);
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 2.5rem;
-            height: 68px;
+        .image-zoom {
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .nav-brand {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.9rem;
-            font-weight: 600;
-            color: var(--accent);
-            text-decoration: none;
-            letter-spacing: -0.5px;
+        .card-hover:hover .image-zoom {
+            transform: scale(1.08);
         }
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 1.8rem;
+        .chip-hover {
+            transition: all 0.3s ease;
         }
-        .nav-links a {
-            text-decoration: none;
-            color: var(--ink-2);
-            font-size: .9rem;
-            font-weight: 500;
-            letter-spacing: .01em;
-            transition: color .2s;
+        .chip-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(184, 74, 28, 0.2);
         }
-        .nav-links a:hover { color: var(--accent); }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: .4rem;
-            text-decoration: none;
-            padding: .5rem 1.25rem;
-            border-radius: 999px;
-            font-family: 'Outfit', sans-serif;
-            font-size: .85rem;
-            font-weight: 500;
-            cursor: pointer;
-            border: 1.5px solid transparent;
-            transition: all .18s;
-            white-space: nowrap;
+        .btn-shine {
+            position: relative;
+            overflow: hidden;
         }
-        .btn-primary   { background: var(--accent); color: #fff; border-color: var(--accent); }
-        .btn-primary:hover { background: #9e3a12; border-color: #9e3a12; }
-        .btn-outline   { background: transparent; color: var(--accent); border-color: var(--accent); }
-        .btn-outline:hover { background: var(--accent); color: #fff; }
-        .btn-ghost     { background: var(--surface); color: var(--ink-2); border-color: var(--border); }
-        .btn-ghost:hover { border-color: var(--ink-3); color: var(--ink); }
-        .btn-white     { background: #fff; color: var(--accent); border-color: #fff; }
-        .btn-white:hover { background: var(--accent-lt); }
-
-        /* ── HERO ── */
-        .hero {
-            display: grid;
-            grid-template-columns: 1fr 420px;
-            gap: 4rem;
-            align-items: center;
-            max-width: 1180px;
-            margin: 0 auto;
-            padding: 5rem 2.5rem 4rem;
-        }
-        .hero-eyebrow {
-            display: inline-flex;
-            align-items: center;
-            gap: .5rem;
-            background: var(--accent-lt);
-            color: var(--accent);
-            font-size: .78rem;
-            font-weight: 600;
-            letter-spacing: .08em;
-            text-transform: uppercase;
-            padding: .35rem .85rem;
-            border-radius: 999px;
-            margin-bottom: 1.4rem;
-        }
-        .hero-eyebrow::before {
+        .btn-shine::after {
             content: '';
-            display: inline-block;
-            width: 6px; height: 6px;
-            background: var(--accent);
-            border-radius: 50%;
-        }
-        .hero-text h1 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: clamp(3rem, 5.5vw, 4.6rem);
-            font-weight: 400;
-            line-height: 1.08;
-            color: var(--ink);
-            margin-bottom: 1.2rem;
-        }
-        .hero-text h1 em {
-            color: var(--accent);
-            font-style: italic;
-        }
-        .hero-text p {
-            color: var(--ink-2);
-            font-size: 1.05rem;
-            font-weight: 300;
-            line-height: 1.75;
-            margin-bottom: 2.2rem;
-            max-width: 420px;
-        }
-        .hero-cta { display: flex; gap: .85rem; flex-wrap: wrap; margin-bottom: 3rem; }
-
-        .hero-stats {
-            display: flex;
-            gap: 2.2rem;
-            padding-top: 2rem;
-            border-top: 1px solid var(--border);
-        }
-        .stat-num {
-            display: block;
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 2rem;
-            font-weight: 600;
-            color: var(--accent);
-            line-height: 1;
-        }
-        .stat-label {
-            display: block;
-            font-size: .72rem;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: .07em;
-            color: var(--ink-3);
-            margin-top: .3rem;
-        }
-
-        /* Hero visual */
-        .hero-visual {
-            position: relative;
-        }
-        .hero-img-wrap {
-            aspect-ratio: 3/4;
-            border-radius: var(--r-lg);
-            overflow: hidden;
-            background: linear-gradient(160deg, #ecdec8 0%, #d9c8a8 100%);
-            display: flex; align-items: center; justify-content: center;
-        }
-        .hero-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
-        .hero-img-icon {
-            font-size: 5rem;
-            opacity: .18;
-            font-family: 'Cormorant Garamond', serif;
-        }
-        .hero-float-badge {
             position: absolute;
-            bottom: -1.2rem;
-            left: -1.5rem;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--r-md);
-            padding: .9rem 1.2rem;
-            display: flex;
-            align-items: center;
-            gap: .8rem;
-            box-shadow: 0 8px 28px rgba(0,0,0,.07);
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
         }
-        .hero-float-badge .badge-icon {
-            width: 42px; height: 42px;
-            background: var(--accent-lt);
-            border-radius: var(--r-sm);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.3rem;
+        .btn-shine:hover::after {
+            left: 100%;
         }
-        .hero-float-badge .badge-label {
-            font-size: .72rem; font-weight: 500;
-            color: var(--ink-3); text-transform: uppercase; letter-spacing: .06em;
+        .fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+            opacity: 0;
         }
-        .hero-float-badge .badge-val {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.3rem; font-weight: 600;
-            color: var(--ink); line-height: 1;
+        @keyframes fadeIn {
+            to { opacity: 1; }
         }
-        .hero-float-tag {
-            position: absolute;
-            top: 1.5rem; right: -1.2rem;
-            background: var(--accent);
-            color: #fff;
-            border-radius: 999px;
-            padding: .45rem 1rem;
-            font-size: .78rem;
-            font-weight: 600;
+        .slide-up {
+            animation: slideUp 0.6s ease-out forwards;
+            opacity: 0;
+            transform: translateY(20px);
         }
-
-        /* ── SECTION WRAPPER ── */
-        .section { max-width: 1180px; margin: 0 auto; padding: 3.5rem 2.5rem; }
-        .section-head {
-            display: flex;
-            align-items: baseline;
-            justify-content: space-between;
-            padding-bottom: 1rem;
-            margin-bottom: 1.8rem;
-            border-bottom: 1px solid var(--border);
+        @keyframes slideUp {
+            to { opacity: 1; transform: translateY(0); }
         }
-        .section-head h2 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.75rem;
-            font-weight: 600;
-            color: var(--ink);
+        .stagger-1 { animation-delay: 0.1s; }
+        .stagger-2 { animation-delay: 0.2s; }
+        .stagger-3 { animation-delay: 0.3s; }
+        .stagger-4 { animation-delay: 0.4s; }
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
         }
-        .section-head a {
-            font-size: .85rem;
-            color: var(--accent);
-            text-decoration: none;
-            font-weight: 500;
-        }
-        .section-head a:hover { text-decoration: underline; }
-
-        /* ── ADMIN PANEL ── */
-        .admin-panel {
-            background: var(--ink);
-            border-radius: var(--r-lg);
-            padding: 2.5rem;
-            color: #f9f6f1;
-        }
-        .admin-panel-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 2rem;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-        .admin-panel h3 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: .3rem;
-        }
-        .admin-panel p { color: rgba(249,246,241,.5); font-size: .88rem; }
-        .admin-stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-            gap: 1px;
-            background: rgba(255,255,255,.08);
-            border-radius: var(--r-md);
-            overflow: hidden;
-            margin-bottom: 1.8rem;
-        }
-        .admin-stat {
-            background: rgba(255,255,255,.04);
-            padding: 1.2rem 1rem;
-            text-align: center;
-        }
-        .admin-stat .num {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 2rem;
-            font-weight: 600;
-            color: var(--gold);
-            line-height: 1;
-        }
-        .admin-stat .lbl {
-            font-size: .68rem;
-            text-transform: uppercase;
-            letter-spacing: .07em;
-            color: rgba(249,246,241,.4);
-            margin-top: .35rem;
-        }
-        .admin-actions { display: flex; gap: .75rem; flex-wrap: wrap; }
-        .btn-admin-primary {
-            background: var(--accent); color: #fff;
-            border: 1.5px solid var(--accent);
-            padding: .55rem 1.3rem; border-radius: 999px;
-            font-size: .85rem; font-weight: 500;
-            text-decoration: none; cursor: pointer;
-            transition: all .18s;
-            display: inline-flex; align-items: center;
-        }
-        .btn-admin-primary:hover { background: #9e3a12; }
-        .btn-admin-ghost {
-            background: rgba(255,255,255,.1); color: rgba(249,246,241,.85);
-            border: 1.5px solid rgba(255,255,255,.15);
-            padding: .55rem 1.3rem; border-radius: 999px;
-            font-size: .85rem; font-weight: 500;
-            text-decoration: none; cursor: pointer;
-            transition: all .18s;
-            display: inline-flex; align-items: center;
-        }
-        .btn-admin-ghost:hover { background: rgba(255,255,255,.18); }
-
-        /* ── USER WELCOME ── */
-        .user-welcome {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--r-lg);
-            padding: 2rem 2.5rem;
-            display: flex;
-            align-items: center;
-            gap: 2rem;
-        }
-        .user-avatar {
-            flex-shrink: 0;
-            width: 60px; height: 60px;
-            border-radius: 50%;
-            background: var(--accent-lt);
-            border: 2px solid var(--accent);
-            display: flex; align-items: center; justify-content: center;
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--accent);
-        }
-        .user-welcome-text h3 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.3rem;
-            font-weight: 600;
-        }
-        .user-welcome-text p {
-            color: var(--ink-3);
-            font-size: .88rem;
-            margin-top: .15rem;
-        }
-        .user-quick-stats {
-            display: flex;
-            gap: 1.8rem;
-            margin-top: .8rem;
-            padding-top: .8rem;
-            border-top: 1px solid var(--border);
-        }
-        .u-stat .num {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--accent);
-            line-height: 1;
-        }
-        .u-stat .lbl {
-            font-size: .7rem;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: .06em;
-            color: var(--ink-3);
-            margin-top: .25rem;
-        }
-        .user-welcome-actions { margin-left: auto; display: flex; gap: .6rem; flex-wrap: wrap; align-self: flex-start; }
-
-        /* ── CATEGORY CHIPS ── */
-        .chips { display: flex; flex-wrap: wrap; gap: .55rem; }
-        .chip {
-            display: inline-flex;
-            align-items: center;
-            gap: .5rem;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 999px;
-            padding: .45rem 1.1rem;
-            text-decoration: none;
-            color: var(--ink-2);
-            font-size: .85rem;
-            font-weight: 500;
-            transition: all .18s;
-        }
-        .chip:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
-        .chip-count {
-            background: var(--bg);
-            border-radius: 999px;
-            padding: .1rem .5rem;
-            font-size: .72rem;
-            color: var(--ink-3);
-            transition: all .18s;
-        }
-        .chip:hover .chip-count { background: rgba(255,255,255,.22); color: rgba(255,255,255,.85); }
-
-        /* ── RECIPE GRID ── */
-        .recipe-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1.4rem;
-        }
-        .recipe-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--r-md);
-            overflow: hidden;
-            text-decoration: none;
-            color: inherit;
-            transition: transform .2s, box-shadow .2s;
-            display: flex;
-            flex-direction: column;
-        }
-        .recipe-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 16px 40px rgba(0,0,0,.08);
-        }
-        .recipe-card-img {
-            aspect-ratio: 16/10;
-            background: linear-gradient(135deg, #ecdec8, #d9c0a0);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 2.8rem;
-            overflow: hidden;
-            position: relative;
-        }
-        .recipe-card-img img {
-            width: 100%; height: 100%;
-            object-fit: cover;
-            transition: transform .3s;
-        }
-        .recipe-card:hover .recipe-card-img img { transform: scale(1.04); }
-        .cat-badge {
-            position: absolute;
-            top: .65rem; left: .65rem;
-            background: var(--accent);
-            color: #fff;
-            font-size: .66rem;
-            font-weight: 600;
-            letter-spacing: .06em;
-            text-transform: uppercase;
-            padding: .22rem .65rem;
-            border-radius: 999px;
-        }
-        .recipe-card-body {
-            padding: 1rem 1.15rem 1.15rem;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        .recipe-card-body h3 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.1rem;
-            font-weight: 600;
-            line-height: 1.3;
-            color: var(--ink);
-            margin-bottom: .5rem;
-        }
-        .recipe-meta {
-            display: flex;
-            gap: .8rem;
-            font-size: .75rem;
-            color: var(--ink-3);
-            margin-top: auto;
-            padding-top: .75rem;
-            border-top: 1px solid var(--border);
-            flex-wrap: wrap;
-        }
-        .recipe-meta span { display: flex; align-items: center; gap: .25rem; }
-        .stars { color: var(--gold); }
-
-        /* ── TAG CLOUD ── */
-        .tags-cloud { display: flex; flex-wrap: wrap; gap: .5rem; }
-        .tag-pill {
-            text-decoration: none;
-            color: var(--ink-3);
-            font-size: .8rem;
-            font-weight: 500;
-            padding: .32rem .85rem;
-            border: 1px solid var(--border);
-            border-radius: 999px;
-            background: var(--surface);
-            transition: all .18s;
-        }
-        .tag-pill:hover {
-            background: var(--gold);
-            color: var(--ink);
-            border-color: var(--gold);
-        }
-
-        /* ── GUEST CTA ── */
-        .guest-cta {
-            background: var(--accent);
-            border-radius: var(--r-lg);
-            padding: 4rem 3rem;
-            text-align: center;
-            color: #fff;
-            position: relative;
-            overflow: hidden;
-        }
-        .guest-cta::before {
-            content: 'Saveur';
-            position: absolute;
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 14rem;
-            font-weight: 600;
-            color: rgba(255,255,255,.06);
-            bottom: -2rem;
-            right: -1rem;
-            pointer-events: none;
-            line-height: 1;
-        }
-        .guest-cta h2 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 2.5rem;
-            font-weight: 400;
-            font-style: italic;
-            margin-bottom: .8rem;
-        }
-        .guest-cta p {
-            opacity: .82;
-            font-size: .95rem;
-            max-width: 460px;
-            margin: 0 auto 2rem;
-            line-height: 1.7;
-        }
-
-        /* ── FOOTER ── */
-        footer {
-            border-top: 1px solid var(--border);
-            text-align: center;
-            padding: 2rem;
-            color: var(--ink-3);
-            font-size: .82rem;
-        }
-        footer a { color: var(--accent); text-decoration: none; }
-
-        /* ── RESPONSIVE ── */
-        @media (max-width: 800px) {
-            nav { padding: 0 1.25rem; }
-            .hero { grid-template-columns: 1fr; gap: 2rem; padding: 3rem 1.25rem 2rem; }
-            .hero-visual { display: none; }
-            .hero-text h1 { font-size: 2.6rem; }
-            .hero-stats { gap: 1.4rem; flex-wrap: wrap; }
-            .section { padding: 2rem 1.25rem; }
-            .user-welcome { flex-direction: column; align-items: flex-start; gap: 1rem; }
-            .user-welcome-actions { margin-left: 0; }
-            .admin-panel { padding: 1.5rem; }
+        .text-balance {
+            text-wrap: balance;
         }
     </style>
+
 </head>
-<body>
+<body class="font-sans text-warm-900 gradient-mesh min-h-screen">
 
-{{-- ── FLASH ── --}}
-@if(session('success'))
-    <div class="flash">{{ session('success') }}</div>
-@endif
+    {{-- Flash Messages --}}
+    @if(session('success'))
+    <div class="fixed top-4 left-1/2 -translate-x-1/2 z-[300] bg-sage-500 text-white px-6 py-3 rounded-full shadow-lg font-medium text-sm fade-in flex items-center gap-2">
+        <i data-lucide="check-circle" class="w-4 h-4"></i>
+        {{ session('success') }}
+    </div>
+    @endif
 
-<nav>
-    <a href="{{ route('home') }}" class="nav-brand">Saveur</a>
-    <div class="nav-links">
-        <a href="{{ route('recipes.search') }}">Browse</a>
-        @auth
-            <a href="{{ route('recipes.my') }}">My Recipes</a>
-            <a href="{{ route('recipes.create') }}" class="btn btn-primary">+ New Recipe</a>
-            <form method="POST" action="{{ route('logout') }}" style="display:inline">
-                @csrf
-                <button type="submit" class="btn btn-ghost">Logout</button>
-            </form>
-        @else
-            <a href="{{ route('login') }}" class="btn btn-outline">Login</a>
-            <a href="{{ route('signup') }}" class="btn btn-primary">Join Free</a>
-        @endauth
-    </div>
-</nav>
-
-{{-- ══ ADMIN PANEL ══ --}}
-@auth
-@if(Auth::user()->role === 'admin')
-<div class="section" style="padding-bottom:0">
-    <div class="admin-panel">
-        <div class="admin-panel-top">
-            <div>
-                <h3>Admin Dashboard</h3>
-                <p>Live platform overview</p>
-            </div>
-            <div class="admin-actions">
-                <a href="{{ route('admin.dashboard') }}" class="btn-admin-primary">Manage recipes</a>
-                <a href="{{ route('admin.users') }}" class="btn-admin-ghost">Manage users</a>
-            </div>
-        </div>
-        <div class="admin-stats-grid">
-            <div class="admin-stat">
-                <div class="num">{{ $stats['total_recipes'] }}</div>
-                <div class="lbl">Recipes</div>
-            </div>
-            <div class="admin-stat">
-                <div class="num">{{ $stats['pending_recipes'] }}</div>
-                <div class="lbl">Pending</div>
-            </div>
-            <div class="admin-stat">
-                <div class="num">{{ $stats['total_users'] }}</div>
-                <div class="lbl">Users</div>
-            </div>
-            <div class="admin-stat">
-                <div class="num">{{ $stats['total_ratings'] }}</div>
-                <div class="lbl">Ratings</div>
-            </div>
-            <div class="admin-stat">
-                <div class="num">{{ $stats['total_categories'] }}</div>
-                <div class="lbl">Categories</div>
-            </div>
-            <div class="admin-stat">
-                <div class="num">{{ $stats['total_tags'] }}</div>
-                <div class="lbl">Tags</div>
-            </div>
-        </div>
-    </div>
-</div>
-@endif
-@endauth
-
-{{-- ══ GUEST HERO ══ --}}
-@guest
-<div class="hero">
-    <div class="hero-text">
-        <div class="hero-eyebrow">{{ $stats['total_recipes'] }}+ recipes live</div>
-        <h1>Recipes you'll <em>love</em> to make again.</h1>
-        <p>Discover home-cooked recipes shared by real cooks — from quick weeknight dinners to long weekend feasts.</p>
-        <div class="hero-cta">
-            <a href="{{ route('signup') }}" class="btn btn-primary">Start cooking →</a>
-            <a href="{{ route('recipes.index') }}" class="btn btn-ghost">Browse recipes</a>
-        </div>
-        <div class="hero-stats">
-            <div>
-                <span class="stat-num">{{ $stats['total_recipes'] }}</span>
-                <span class="stat-label">Recipes</span>
-            </div>
-            <div>
-                <span class="stat-num">{{ $stats['total_users'] }}</span>
-                <span class="stat-label">Cooks</span>
-            </div>
-            <div>
-                <span class="stat-num">{{ $stats['total_ratings'] }}</span>
-                <span class="stat-label">Reviews</span>
-            </div>
-            <div>
-                <span class="stat-num">{{ $stats['total_categories'] }}</span>
-                <span class="stat-label">Categories</span>
-            </div>
-        </div>
-    </div>
-    <div class="hero-visual">
-        <div class="hero-img-wrap">
-            <div class="hero-img-icon">🍳</div>
-        </div>
-        <div class="hero-float-badge">
-            <div class="badge-icon">⭐</div>
-            <div>
-                <div class="badge-label">Top rated today</div>
-                <div class="badge-val">4.9 / 5.0</div>
-            </div>
-        </div>
-        <div class="hero-float-tag">🔥 Trending now</div>
-    </div>
-</div>
-@endguest
-
-{{-- ══ USER WELCOME ══ --}}
-@auth
-@if(Auth::user()->role !== 'admin')
-<div class="section" style="padding-bottom:0">
-    <div class="user-welcome">
-        <div class="user-avatar">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</div>
-        <div class="user-welcome-text">
-            <h3>Welcome back, {{ Auth::user()->name }}</h3>
-            <p>Ready to cook something new?</p>
-            <div class="user-quick-stats">
-                <div class="u-stat">
-                    <div class="num">{{ $userStats['my_recipes_count'] ?? 0 }}</div>
-                    <div class="lbl">My Recipes</div>
-                </div>
-                <div class="u-stat">
-                    <div class="num">{{ $userStats['my_favorites_count'] ?? 0 }}</div>
-                    <div class="lbl">Favorites</div>
-                </div>
-            </div>
-        </div>
-        <div class="user-welcome-actions">
-            <a href="{{ route('recipes.create') }}" class="btn btn-primary">+ New Recipe</a>
-            <a href="{{ route('recipes.my') }}" class="btn btn-ghost">My Recipes</a>
-        </div>
-    </div>
-</div>
-@endif
-@endauth
-
-{{-- ══ CATEGORIES ══ --}}
-@if($categories->isNotEmpty())
-<div class="section">
-    <div class="section-head">
-        <h2>Browse by category</h2>
-    </div>
-    <div class="chips">
-        @foreach($categories as $cat)
-        <a href="{{ route('recipes.by-category', $cat->id) }}" class="chip">
-            {{ $cat->name }}
-            <span class="chip-count">{{ $cat->recipes_count }}</span>
-        </a>
-        @endforeach
-    </div>
-</div>
-@endif
-
-{{-- ══ POPULAR RECIPES ══ --}}
-@if($popularRecipes->isNotEmpty())
-<div class="section">
-    <div class="section-head">
-        <h2>Most popular</h2>
-        <a href="{{ route('recipes.index') }}">View all →</a>
-    </div>
-    <div class="recipe-grid">
-        @foreach($popularRecipes as $recipe)
-        <a href="{{ route('recipes.show', $recipe) }}" class="recipe-card">
-            <div class="recipe-card-img">
-                @if($recipe->image)
-                    <img src="{{ asset('storage/' . $recipe->image) }}" alt="{{ $recipe->title }}" />
+    {{-- Navigation --}}
+    <nav class="sticky top-0 z-[200] glass border-b border-warm-200/60">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
+            <a href="{{ route('home') }}" class="font-serif text-2xl font-bold text-brand-500 tracking-tight hover:text-brand-600 transition-colors">
+                Saveur
+            </a>
+            <div class="flex items-center gap-6">
+                <a href="{{ route('recipes.search') }}" class="text-warm-600 hover:text-brand-500 text-sm font-medium transition-colors hidden sm:block">Browse</a>
+                @auth
+                    <a href="{{ route('recipes.my') }}" class="text-warm-600 hover:text-brand-500 text-sm font-medium transition-colors hidden sm:block">My Recipes</a>
+                    <a href="{{ route('recipes.create') }}" class="btn-shine bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium px-5 py-2.5 rounded-full transition-colors flex items-center gap-2">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        <span class="hidden sm:inline">New Recipe</span>
+                    </a>
+                    <form method="POST" action="{{ route('logout') }}" class="inline">
+                        @csrf
+                        <button type="submit" class="text-warm-500 hover:text-warm-700 text-sm font-medium transition-colors flex items-center gap-1.5">
+                            <i data-lucide="log-out" class="w-4 h-4"></i>
+                            <span class="hidden sm:inline">Logout</span>
+                        </button>
+                    </form>
                 @else
-                    🍽️
-                @endif
-                @if($recipe->category)
-                    <span class="cat-badge">{{ $recipe->category->name }}</span>
-                @endif
+                    <a href="{{ route('login') }}" class="text-warm-600 hover:text-brand-500 text-sm font-medium transition-colors">Login</a>
+                    <a href="{{ route('signup') }}" class="btn-shine bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium px-5 py-2.5 rounded-full transition-colors">
+                        Join Free
+                    </a>
+                @endauth
             </div>
-            <div class="recipe-card-body">
-                <h3>{{ $recipe->title }}</h3>
-                <div class="recipe-meta">
-                    @if($recipe->average_rating)
-                        <span class="stars">
-                            @for($i=1;$i<=5;$i++){{ $i <= round($recipe->average_rating) ? '★' : '☆' }}@endfor
+        </div>
+    </nav>
+
+    {{-- Admin Panel --}}
+    @auth
+    @if(Auth::user()->role === 'admin')
+    <div class="max-w-7xl mx-auto px-6 lg:px-8 pt-8">
+        <div class="bg-warm-900 rounded-2xl p-6 lg:p-8 text-white relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-brand-500/10 rounded-full -translate-y-1/2 translate-x-1/3"></div>
+            <div class="absolute bottom-0 left-0 w-48 h-48 bg-gold-500/10 rounded-full translate-y-1/2 -translate-x-1/3"></div>
+            <div class="relative z-10">
+                <div class="flex flex-wrap items-start justify-between gap-4 mb-6">
+                    <div>
+                        <h3 class="font-serif text-xl font-semibold">Admin Dashboard</h3>
+                        <p class="text-warm-400 text-sm mt-1">Live platform overview</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <a href="{{ route('admin.dashboard') }}" class="bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium px-4 py-2 rounded-full transition-colors flex items-center gap-2">
+                            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                            Manage recipes
+                        </a>
+                        <a href="{{ route('admin.users') }}" class="bg-white/10 hover:bg-white/20 text-white/90 text-sm font-medium px-4 py-2 rounded-full transition-colors flex items-center gap-2">
+                            <i data-lucide="users" class="w-4 h-4"></i>
+                            Manage users
+                        </a>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-px bg-white/10 rounded-xl overflow-hidden">
+                    @php
+                        $adminStats = [
+                            ['num' => $stats['total_recipes'], 'lbl' => 'Recipes', 'icon' => 'book-open'],
+                            ['num' => $stats['pending_recipes'], 'lbl' => 'Pending', 'icon' => 'clock'],
+                            ['num' => $stats['total_users'], 'lbl' => 'Users', 'icon' => 'users'],
+                            ['num' => $stats['total_ratings'], 'lbl' => 'Ratings', 'icon' => 'star'],
+                            ['num' => $stats['total_categories'], 'lbl' => 'Categories', 'icon' => 'grid-3x3'],
+                            ['num' => $stats['total_tags'], 'lbl' => 'Tags', 'icon' => 'tag'],
+                        ];
+                    @endphp
+                    @foreach($adminStats as $stat)
+                    <div class="bg-warm-900/80 p-4 text-center">
+                        <div class="flex justify-center mb-2">
+                            <i data-lucide="{{ $stat['icon'] }}" class="w-5 h-5 text-gold-400"></i>
+                        </div>
+                        <div class="font-serif text-2xl font-semibold text-gold-400">{{ $stat['num'] }}</div>
+                        <div class="text-xs text-warm-400 uppercase tracking-wider mt-1">{{ $stat['lbl'] }}</div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+    @endauth
+
+    {{-- Guest Hero --}}
+    @guest
+    <section class="max-w-7xl mx-auto px-6 lg:px-8 pt-12 lg:pt-20 pb-16">
+        <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            <div class="slide-up">
+                <div class="inline-flex items-center gap-2 bg-brand-100 text-brand-600 text-xs font-semibold uppercase tracking-widest px-4 py-2 rounded-full mb-6">
+                    <span class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>
+                    {{ $stats['total_recipes'] }}+ recipes live
+                </div>
+                <h1 class="font-serif text-5xl lg:text-7xl font-medium leading-[1.1] text-balance mb-6">
+                    Recipes you'll <em class="text-brand-500">love</em> to make again.
+                </h1>
+                <p class="text-warm-600 text-lg leading-relaxed max-w-md mb-8 text-balance">
+                    Discover home-cooked recipes shared by real cooks — from quick weeknight dinners to long weekend feasts.
+                </p>
+                <div class="flex flex-wrap gap-4 mb-12">
+                    <a href="{{ route('signup') }}" class="btn-shine bg-brand-500 hover:bg-brand-600 text-white font-medium px-8 py-3.5 rounded-full transition-colors inline-flex items-center gap-2">
+                        Start cooking
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </a>
+                    <a href="{{ route('recipes.index') }}" class="bg-white hover:bg-warm-50 text-warm-700 border border-warm-200 font-medium px-8 py-3.5 rounded-full transition-colors inline-flex items-center gap-2">
+                        <i data-lucide="search" class="w-4 h-4"></i>
+                        Browse recipes
+                    </a>
+                </div>
+                <div class="flex gap-8 pt-8 border-t border-warm-200">
+                    @php $heroStats = [
+                        ['num' => $stats['total_recipes'], 'lbl' => 'Recipes'],
+                        ['num' => $stats['total_users'], 'lbl' => 'Cooks'],
+                        ['num' => $stats['total_ratings'], 'lbl' => 'Reviews'],
+                        ['num' => $stats['total_categories'], 'lbl' => 'Categories'],
+                    ]; @endphp
+                    @foreach($heroStats as $stat)
+                    <div>
+                        <div class="font-serif text-3xl font-semibold text-brand-500">{{ $stat['num'] }}</div>
+                        <div class="text-xs text-warm-500 uppercase tracking-wider mt-1">{{ $stat['lbl'] }}</div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            <div class="relative slide-up stagger-2 hidden lg:block">
+                <div class="aspect-[3/4] rounded-3xl overflow-hidden bg-gradient-to-br from-warm-200 to-warm-300 relative">
+                    <img src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=800&q=80" 
+                         alt="Cooking" 
+                         class="w-full h-full object-cover image-zoom">
+                    <div class="absolute inset-0 bg-gradient-to-t from-warm-900/30 to-transparent"></div>
+                </div>
+                <div class="absolute -bottom-4 -left-4 bg-white rounded-2xl p-4 shadow-xl border border-warm-100 flex items-center gap-3">
+                    <div class="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center">
+                        <i data-lucide="star" class="w-6 h-6 text-brand-500 fill-brand-500"></i>
+                    </div>
+                    <div>
+                        <div class="text-xs text-warm-500 uppercase tracking-wider">Top rated today</div>
+                        <div class="font-serif text-xl font-semibold">4.9 / 5.0</div>
+                    </div>
+                </div>
+                <div class="absolute top-6 -right-3 bg-brand-500 text-white px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2 shadow-lg">
+                    <i data-lucide="flame" class="w-4 h-4 fill-white"></i>
+                    Trending now
+                </div>
+            </div>
+        </div>
+    </section>
+    @endguest
+
+    {{-- How It Works --}}
+    @guest
+    <section class="max-w-7xl mx-auto px-6 lg:px-8 pt-16 pb-8">
+        <div class="text-center mb-12">
+            <span class="inline-flex items-center gap-2 bg-sage-100 text-sage-600 text-xs font-semibold uppercase tracking-widest px-4 py-2 rounded-full mb-4">
+                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                How it works
+            </span>
+            <h2 class="font-serif text-3xl lg:text-4xl font-semibold mb-4">Three steps to culinary fame</h2>
+            <p class="text-warm-500 max-w-lg mx-auto">Share your favorite recipes with thousands of home cooks around the world. It's simple, free, and rewarding.</p>
+        </div>
+        <div class="grid md:grid-cols-3 gap-8">
+            <div class="bg-white rounded-2xl p-8 border border-warm-200/60 text-center group hover:border-brand-300 transition-colors">
+                <div class="w-16 h-16 bg-brand-100 rounded-2xl flex items-center justify-center mx-auto mb-5 group-hover:bg-brand-500 transition-colors">
+                    <i data-lucide="user-plus" class="w-7 h-7 text-brand-500 group-hover:text-white transition-colors"></i>
+                </div>
+                <h3 class="font-serif text-xl font-semibold mb-2">Create your profile</h3>
+                <p class="text-warm-500 text-sm leading-relaxed">Sign up in seconds and set up your personal kitchen profile. No credit card required.</p>
+            </div>
+            <div class="bg-white rounded-2xl p-8 border border-warm-200/60 text-center group hover:border-brand-300 transition-colors">
+                <div class="w-16 h-16 bg-brand-100 rounded-2xl flex items-center justify-center mx-auto mb-5 group-hover:bg-brand-500 transition-colors">
+                    <i data-lucide="pen-tool" class="w-7 h-7 text-brand-500 group-hover:text-white transition-colors"></i>
+                </div>
+                <h3 class="font-serif text-xl font-semibold mb-2">Share recipes</h3>
+                <p class="text-warm-500 text-sm leading-relaxed">Write down your recipes with photos, ingredients, and step-by-step instructions.</p>
+            </div>
+            <div class="bg-white rounded-2xl p-8 border border-warm-200/60 text-center group hover:border-brand-300 transition-colors">
+                <div class="w-16 h-16 bg-brand-100 rounded-2xl flex items-center justify-center mx-auto mb-5 group-hover:bg-brand-500 transition-colors">
+                    <i data-lucide="trophy" class="w-7 h-7 text-brand-500 group-hover:text-white transition-colors"></i>
+                </div>
+                <h3 class="font-serif text-xl font-semibold mb-2">Get discovered</h3>
+                <p class="text-warm-500 text-sm leading-relaxed">Earn ratings, build a following, and become a trusted voice in the cooking community.</p>
+            </div>
+        </div>
+    </section>
+    @endguest
+
+    {{-- Featured Cooks --}}
+    @guest
+    <section class="max-w-7xl mx-auto px-6 lg:px-8 pt-16 pb-8">
+        <div class="flex items-baseline justify-between mb-8 pb-4 border-b border-warm-200">
+            <div>
+                <span class="text-warm-500 text-xs font-semibold uppercase tracking-widest mb-2 block">Community</span>
+                <h2 class="font-serif text-3xl font-semibold">Meet our top cooks</h2>
+            </div>
+        </div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            @php
+                $featuredCooks = [
+                    ['name' => 'Maria Chen', 'recipes' => 47, 'followers' => '12.5K', 'specialty' => 'Asian Fusion', 'avatar' => 'MC'],
+                    ['name' => 'James O\'Brien', 'recipes' => 32, 'followers' => '8.2K', 'specialty' => 'BBQ & Grill', 'avatar' => 'JO'],
+                    ['name' => 'Sofia Rossi', 'recipes' => 56, 'followers' => '15.1K', 'specialty' => 'Italian Classics', 'avatar' => 'SR'],
+                    ['name' => 'David Kim', 'recipes' => 28, 'followers' => '6.8K', 'specialty' => 'Vegan Delights', 'avatar' => 'DK'],
+                ];
+            @endphp
+            @foreach($featuredCooks as $cook)
+            <div class="bg-white rounded-2xl p-6 border border-warm-200/60 text-center hover:border-brand-300 transition-colors">
+                <div class="w-20 h-20 rounded-full bg-gradient-to-br from-brand-200 to-brand-300 flex items-center justify-center mx-auto mb-4 text-brand-700 font-serif text-xl font-bold">
+                    {{ $cook['avatar'] }}
+                </div>
+                <h3 class="font-serif text-lg font-semibold">{{ $cook['name'] }}</h3>
+                <p class="text-brand-500 text-sm font-medium mt-1">{{ $cook['specialty'] }}</p>
+                <div class="flex justify-center gap-6 mt-4 pt-4 border-t border-warm-100">
+                    <div>
+                        <div class="font-semibold text-warm-800">{{ $cook['recipes'] }}</div>
+                        <div class="text-xs text-warm-500">Recipes</div>
+                    </div>
+                    <div>
+                        <div class="font-semibold text-warm-800">{{ $cook['followers'] }}</div>
+                        <div class="text-xs text-warm-500">Followers</div>
+                    </div>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </section>
+    @endguest
+
+    {{-- Why Join --}}
+    @guest
+    <section class="max-w-7xl mx-auto px-6 lg:px-8 pt-16 pb-8">
+        <div class="bg-warm-50 rounded-3xl p-8 lg:p-12 border border-warm-200/60">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <span class="inline-flex items-center gap-2 bg-gold-100 text-gold-600 text-xs font-semibold uppercase tracking-widest px-4 py-2 rounded-full mb-4">
+                        <i data-lucide="crown" class="w-3.5 h-3.5"></i>
+                        Why Saveur?
+                    </span>
+                    <h2 class="font-serif text-3xl lg:text-4xl font-semibold mb-6">Everything you need to share your passion for cooking</h2>
+                    <div class="space-y-5">
+                        <div class="flex gap-4">
+                            <div class="w-10 h-10 bg-brand-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="image" class="w-5 h-5 text-brand-500"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-warm-800">Beautiful recipe cards</h4>
+                                <p class="text-warm-500 text-sm mt-1">Your recipes look stunning with our photo-first layout and clean typography.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="w-10 h-10 bg-sage-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="bar-chart-3" class="w-5 h-5 text-sage-500"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-warm-800">Track your growth</h4>
+                                <p class="text-warm-500 text-sm mt-1">See detailed analytics on views, ratings, and follower growth over time.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="w-10 h-10 bg-gold-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="bookmark" class="w-5 h-5 text-gold-500"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-warm-800">Save & organize</h4>
+                                <p class="text-warm-500 text-sm mt-1">Bookmark recipes you love and organize them into custom collections.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="w-10 h-10 bg-brand-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="message-circle" class="w-5 h-5 text-brand-500"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-warm-800">Engage with cooks</h4>
+                                <p class="text-warm-500 text-sm mt-1">Receive feedback, answer questions, and build relationships with food lovers.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative hidden lg:block">
+                    <div class="aspect-square rounded-3xl overflow-hidden bg-gradient-to-br from-warm-200 to-warm-300">
+                        <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80" 
+                             alt="Cooking together" 
+                             class="w-full h-full object-cover">
+                    </div>
+                    <div class="absolute -bottom-6 -right-6 bg-white rounded-2xl p-5 shadow-xl border border-warm-100">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 bg-sage-100 rounded-xl flex items-center justify-center">
+                                <i data-lucide="trending-up" class="w-6 h-6 text-sage-500"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs text-warm-500 uppercase tracking-wider">Monthly growth</div>
+                                <div class="font-serif text-xl font-semibold text-warm-800">+2,400 cooks</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    @endguest
+
+    {{-- Testimonials --}}
+    @guest
+    <section class="max-w-7xl mx-auto px-6 lg:px-8 pt-16 pb-8">
+        <div class="text-center mb-10">
+            <span class="inline-flex items-center gap-2 bg-brand-100 text-brand-600 text-xs font-semibold uppercase tracking-widest px-4 py-2 rounded-full mb-4">
+                <i data-lucide="quote" class="w-3.5 h-3.5"></i>
+                Testimonials
+            </span>
+            <h2 class="font-serif text-3xl lg:text-4xl font-semibold">Loved by home cooks</h2>
+        </div>
+        <div class="grid md:grid-cols-3 gap-6">
+            @php
+                $testimonials = [
+                    ['text' => "Saveur transformed how I share my grandmother's recipes. The community is incredibly supportive and I've gained so many new friends who love cooking as much as I do.", 'author' => 'Elena Rodriguez', 'role' => 'Home Cook', 'location' => 'Barcelona'],
+                    ['text' => "I started sharing recipes as a hobby and now I have over 10,000 followers. The platform makes it so easy to format recipes beautifully and track engagement.", 'author' => 'Marcus Johnson', 'role' => 'Food Blogger', 'location' => 'Chicago'],
+                    ['text' => "The rating system and feedback from other cooks helped me refine my dishes. I've learned more in 3 months on Saveur than in years of cooking alone.", 'author' => 'Aiko Tanaka', 'role' => 'Amateur Chef', 'location' => 'Tokyo'],
+                ];
+            @endphp
+            @foreach($testimonials as $t)
+            <div class="bg-white rounded-2xl p-8 border border-warm-200/60 relative">
+                <i data-lucide="quote" class="w-8 h-8 text-brand-200 absolute top-6 right-6"></i>
+                <p class="text-warm-600 leading-relaxed mb-6 text-sm">"{{ $t['text'] }}"</p>
+                <div class="flex items-center gap-3 pt-4 border-t border-warm-100">
+                    <div class="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center font-serif text-sm font-bold text-brand-600">
+                        {{ implode('', array_map(function($w) { return strtoupper(substr($w,0,1)); }, explode(' ', $t['author']))) }}
+                    </div>
+                    <div>
+                        <div class="font-semibold text-sm">{{ $t['author'] }}</div>
+                        <div class="text-warm-500 text-xs">{{ $t['role'] }} · {{ $t['location'] }}</div>
+                    </div>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </section>
+    @endguest
+
+    {{-- Stats Banner --}}
+    @guest
+    <section class="max-w-7xl mx-auto px-6 lg:px-8 pt-16 pb-8">
+        <div class="bg-brand-500 rounded-3xl p-8 lg:p-12 text-white relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/3"></div>
+            <div class="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/3"></div>
+            <div class="relative z-10">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+                    <div>
+                        <div class="font-serif text-4xl lg:text-5xl font-semibold">50K+</div>
+                        <div class="text-white/70 text-sm mt-2 uppercase tracking-wider">Recipes shared</div>
+                    </div>
+                    <div>
+                        <div class="font-serif text-4xl lg:text-5xl font-semibold">120K+</div>
+                        <div class="text-white/70 text-sm mt-2 uppercase tracking-wider">Active cooks</div>
+                    </div>
+                    <div>
+                        <div class="font-serif text-4xl lg:text-5xl font-semibold">2M+</div>
+                        <div class="text-white/70 text-sm mt-2 uppercase tracking-wider">Monthly views</div>
+                    </div>
+                    <div>
+                        <div class="font-serif text-4xl lg:text-5xl font-semibold">4.9</div>
+                        <div class="text-white/70 text-sm mt-2 uppercase tracking-wider">Average rating</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    @endguest
+
+    {{-- User Welcome --}}
+    @auth
+    @if(Auth::user()->role !== 'admin')
+    <section class="max-w-7xl mx-auto px-6 lg:px-8 pt-8">
+        <div class="bg-white rounded-2xl p-6 lg:p-8 border border-warm-200/60 shadow-sm flex flex-col md:flex-row items-center gap-6">
+            <div class="w-16 h-16 rounded-full bg-brand-100 border-2 border-brand-500 flex items-center justify-center flex-shrink-0">
+                <span class="font-serif text-2xl font-semibold text-brand-600">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
+            </div>
+            <div class="flex-1 text-center md:text-left">
+                <h3 class="font-serif text-xl font-semibold">Welcome back, {{ Auth::user()->name }}</h3>
+                <p class="text-warm-500 text-sm mt-1">Ready to cook something new?</p>
+                <div class="flex gap-6 mt-4 pt-4 border-t border-warm-100 justify-center md:justify-start">
+                    <div>
+                        <div class="font-serif text-2xl font-semibold text-brand-500">{{ $userStats['my_recipes_count'] ?? 0 }}</div>
+                        <div class="text-xs text-warm-500 uppercase tracking-wider">My Recipes</div>
+                    </div>
+                    <div>
+                        <div class="font-serif text-2xl font-semibold text-brand-500">{{ $userStats['my_favorites_count'] ?? 0 }}</div>
+                        <div class="text-xs text-warm-500 uppercase tracking-wider">Favorites</div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex gap-3 flex-shrink-0">
+                <a href="{{ route('recipes.create') }}" class="btn-shine bg-brand-500 hover:bg-brand-600 text-white font-medium px-5 py-2.5 rounded-full transition-colors inline-flex items-center gap-2">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    New Recipe
+                </a>
+                <a href="{{ route('recipes.my') }}" class="bg-warm-50 hover:bg-warm-100 text-warm-700 border border-warm-200 font-medium px-5 py-2.5 rounded-full transition-colors">
+                    My Recipes
+                </a>
+            </div>
+        </div>
+    </section>
+    @endif
+    @endauth
+
+    {{-- Categories --}}
+    @if($categories->isNotEmpty())
+    <section class="max-w-7xl mx-auto px-6 lg:px-8 pt-12">
+        <div class="flex items-baseline justify-between mb-6 pb-4 border-b border-warm-200">
+            <h2 class="font-serif text-2xl font-semibold">Browse by category</h2>
+        </div>
+        <div class="flex flex-wrap gap-3">
+            @foreach($categories as $cat)
+            <a href="{{ route('recipes.by-category', $cat->id) }}" 
+               class="chip-hover bg-white hover:bg-brand-500 text-warm-700 hover:text-white border border-warm-200 hover:border-brand-500 rounded-full px-5 py-2.5 text-sm font-medium transition-all inline-flex items-center gap-2">
+                {{ $cat->name }}
+                <span class="bg-warm-100 hover:bg-white/20 text-warm-500 hover:text-white/80 text-xs px-2 py-0.5 rounded-full transition-colors">{{ $cat->recipes_count }}</span>
+            </a>
+            @endforeach
+        </div>
+    </section>
+    @endif
+
+    {{-- Popular Recipes --}}
+    @if($popularRecipes->isNotEmpty())
+    <section class="max-w-7xl mx-auto px-6 lg:px-8 pt-12">
+        <div class="flex items-baseline justify-between mb-6 pb-4 border-b border-warm-200">
+            <h2 class="font-serif text-2xl font-semibold">Most popular</h2>
+            <a href="{{ route('recipes.index') }}" class="text-brand-500 hover:text-brand-600 text-sm font-medium inline-flex items-center gap-1 transition-colors">
+                View all
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </a>
+        </div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            @foreach($popularRecipes as $recipe)
+            <a href="{{ route('recipes.show', $recipe) }}" class="card-hover bg-white rounded-2xl overflow-hidden border border-warm-200/60 group">
+                <div class="aspect-[16/10] bg-gradient-to-br from-warm-200 to-warm-300 relative overflow-hidden">
+                    @if($recipe->image)
+                        <img src="{{ asset('storage/' . $recipe->image) }}" alt="{{ $recipe->title }}" class="w-full h-full object-cover image-zoom">
+                    @else
+                        <div class="w-full h-full flex items-center justify-center">
+                            <i data-lucide="utensils" class="w-12 h-12 text-warm-400"></i>
+                        </div>
+                    @endif
+                    @if($recipe->category)
+                        <span class="absolute top-3 left-3 bg-brand-500 text-white text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full">{{ $recipe->category->name }}</span>
+                    @endif
+                    <div class="absolute inset-0 bg-gradient-to-t from-warm-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                </div>
+                <div class="p-4">
+                    <h3 class="font-serif text-lg font-semibold leading-tight group-hover:text-brand-500 transition-colors">{{ $recipe->title }}</h3>
+                    <div class="flex items-center gap-4 mt-3 pt-3 border-t border-warm-100 text-sm text-warm-500">
+                        @if($recipe->average_rating)
+                            <span class="flex items-center gap-1">
+                                <i data-lucide="star" class="w-3.5 h-3.5 text-gold-500 fill-gold-500"></i>
+                                <span class="font-medium">{{ number_format($recipe->average_rating, 1) }}</span>
+                            </span>
+                        @endif
+                        @if($recipe->cook_time)
+                            <span class="flex items-center gap-1">
+                                <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                                {{ $recipe->cook_time }} min
+                            </span>
+                        @endif
+                        @if($recipe->servings)
+                            <span class="flex items-center gap-1">
+                                <i data-lucide="users" class="w-3.5 h-3.5"></i>
+                                {{ $recipe->servings }}
+                            </span>
+                        @endif
+                    </div>
+                </div>
+            </a>
+            @endforeach
+        </div>
+    </section>
+    @endif
+
+    {{-- Recent Recipes --}}
+    @if($recentRecipes->isNotEmpty())
+    <section class="max-w-7xl mx-auto px-6 lg:px-8 pt-12">
+        <div class="flex items-baseline justify-between mb-6 pb-4 border-b border-warm-200">
+            <h2 class="font-serif text-2xl font-semibold">Just added</h2>
+            <a href="{{ route('recipes.index') }}" class="text-brand-500 hover:text-brand-600 text-sm font-medium inline-flex items-center gap-1 transition-colors">
+                View all
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </a>
+        </div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            @foreach($recentRecipes as $recipe)
+            <a href="{{ route('recipes.show', $recipe) }}" class="card-hover bg-white rounded-2xl overflow-hidden border border-warm-200/60 group">
+                <div class="aspect-[16/10] bg-gradient-to-br from-warm-200 to-warm-300 relative overflow-hidden">
+                    @if($recipe->image)
+                        <img src="{{ asset('storage/' . $recipe->image) }}" alt="{{ $recipe->title }}" class="w-full h-full object-cover image-zoom">
+                    @else
+                        <div class="w-full h-full flex items-center justify-center">
+                            <i data-lucide="soup" class="w-12 h-12 text-warm-400"></i>
+                        </div>
+                    @endif
+                    @if($recipe->category)
+                        <span class="absolute top-3 left-3 bg-brand-500 text-white text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full">{{ $recipe->category->name }}</span>
+                    @endif
+                </div>
+                <div class="p-4">
+                    <h3 class="font-serif text-lg font-semibold leading-tight group-hover:text-brand-500 transition-colors">{{ $recipe->title }}</h3>
+                    <div class="flex items-center gap-4 mt-3 pt-3 border-t border-warm-100 text-sm text-warm-500">
+                        @if($recipe->average_rating)
+                            <span class="flex items-center gap-1">
+                                <i data-lucide="star" class="w-3.5 h-3.5 text-gold-500 fill-gold-500"></i>
+                                {{ number_format($recipe->average_rating, 1) }}
+                            </span>
+                        @endif
+                        @if($recipe->cook_time)
+                            <span class="flex items-center gap-1">
+                                <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                                {{ $recipe->cook_time }} min
+                            </span>
+                        @endif
+                        <span class="flex items-center gap-1">
+                            <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+                            {{ $recipe->created_at->diffForHumans() }}
                         </span>
-                        <span>{{ number_format($recipe->average_rating, 1) }}</span>
+                    </div>
+                </div>
+            </a>
+            @endforeach
+        </div>
+    </section>
+    @endif
+
+    {{-- User Favorites --}}
+    @auth
+    @if(Auth::user()->role !== 'admin' && $userFavorites->isNotEmpty())
+    <section class="max-w-7xl mx-auto px-6 lg:px-8 pt-12">
+        <div class="flex items-baseline justify-between mb-6 pb-4 border-b border-warm-200">
+            <h2 class="font-serif text-2xl font-semibold">Your favorites</h2>
+            <a href="{{ route('recipes.favorites') }}" class="text-brand-500 hover:text-brand-600 text-sm font-medium inline-flex items-center gap-1 transition-colors">
+                See all
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </a>
+        </div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            @foreach($userFavorites as $recipe)
+            <a href="{{ route('recipes.show', $recipe) }}" class="card-hover bg-white rounded-2xl overflow-hidden border border-warm-200/60 group">
+                <div class="aspect-[16/10] bg-gradient-to-br from-warm-200 to-warm-300 relative overflow-hidden">
+                    @if($recipe->image)
+                        <img src="{{ asset('storage/' . $recipe->image) }}" alt="{{ $recipe->title }}" class="w-full h-full object-cover image-zoom">
+                    @else
+                        <div class="w-full h-full flex items-center justify-center">
+                            <i data-lucide="heart" class="w-12 h-12 text-warm-400"></i>
+                        </div>
                     @endif
-                    @if($recipe->cook_time)
-                        <span>⏱ {{ $recipe->cook_time }} min</span>
-                    @endif
-                    @if($recipe->servings)
-                        <span>🍽 {{ $recipe->servings }}</span>
+                    @if($recipe->category)
+                        <span class="absolute top-3 left-3 bg-brand-500 text-white text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full">{{ $recipe->category->name }}</span>
                     @endif
                 </div>
-            </div>
-        </a>
-        @endforeach
-    </div>
-</div>
-@endif
-
-{{-- ══ RECENT RECIPES ══ --}}
-@if($recentRecipes->isNotEmpty())
-<div class="section">
-    <div class="section-head">
-        <h2>Just added</h2>
-        <a href="{{ route('recipes.index') }}">View all →</a>
-    </div>
-    <div class="recipe-grid">
-        @foreach($recentRecipes as $recipe)
-        <a href="{{ route('recipes.show', $recipe) }}" class="recipe-card">
-            <div class="recipe-card-img">
-                @if($recipe->image)
-                    <img src="{{ asset('storage/' . $recipe->image) }}" alt="{{ $recipe->title }}" />
-                @else
-                    🥘
-                @endif
-                @if($recipe->category)
-                    <span class="cat-badge">{{ $recipe->category->name }}</span>
-                @endif
-            </div>
-            <div class="recipe-card-body">
-                <h3>{{ $recipe->title }}</h3>
-                <div class="recipe-meta">
-                    @if($recipe->average_rating)
-                        <span>⭐ {{ number_format($recipe->average_rating, 1) }}</span>
-                    @endif
-                    @if($recipe->cook_time)
-                        <span>⏱ {{ $recipe->cook_time }} min</span>
-                    @endif
-                    <span>{{ $recipe->created_at->diffForHumans() }}</span>
+                <div class="p-4">
+                    <h3 class="font-serif text-lg font-semibold leading-tight group-hover:text-brand-500 transition-colors">{{ $recipe->title }}</h3>
+                    <div class="flex items-center gap-4 mt-3 pt-3 border-t border-warm-100 text-sm text-warm-500">
+                        @if($recipe->cook_time)
+                            <span class="flex items-center gap-1">
+                                <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                                {{ $recipe->cook_time }} min
+                            </span>
+                        @endif
+                        @if($recipe->servings)
+                            <span class="flex items-center gap-1">
+                                <i data-lucide="users" class="w-3.5 h-3.5"></i>
+                                {{ $recipe->servings }}
+                            </span>
+                        @endif
+                    </div>
                 </div>
-            </div>
-        </a>
-        @endforeach
-    </div>
-</div>
-@endif
+            </a>
+            @endforeach
+        </div>
+    </section>
+    @endif
+    @endauth
 
-{{-- ══ USER FAVORITES ══ --}}
-@auth
-@if(Auth::user()->role !== 'admin' && $userFavorites->isNotEmpty())
-<div class="section">
-    <div class="section-head">
-        <h2>Your favorites</h2>
-        <a href="{{ route('recipes.favorites') }}">See all →</a>
-    </div>
-    <div class="recipe-grid">
-        @foreach($userFavorites as $recipe)
-        <a href="{{ route('recipes.show', $recipe) }}" class="recipe-card">
-            <div class="recipe-card-img">
-                @if($recipe->image)
-                    <img src="{{ asset('storage/' . $recipe->image) }}" alt="{{ $recipe->title }}" />
-                @else
-                    ❤️
-                @endif
-                @if($recipe->category)
-                    <span class="cat-badge">{{ $recipe->category->name }}</span>
-                @endif
-            </div>
-            <div class="recipe-card-body">
-                <h3>{{ $recipe->title }}</h3>
-                <div class="recipe-meta">
-                    @if($recipe->cook_time) <span>⏱ {{ $recipe->cook_time }} min</span> @endif
-                    @if($recipe->servings)  <span>🍽 {{ $recipe->servings }}</span> @endif
+    {{-- Tag Cloud --}}
+    @if($tags->isNotEmpty())
+    <section class="max-w-7xl mx-auto px-6 lg:px-8 pt-12 pb-4">
+        <div class="flex items-baseline justify-between mb-6 pb-4 border-b border-warm-200">
+            <h2 class="font-serif text-2xl font-semibold">Explore tags</h2>
+        </div>
+        <div class="flex flex-wrap gap-2">
+            @foreach($tags as $tag)
+            <a href="{{ route('recipes.by-tag', $tag->id) }}" 
+               class="bg-white hover:bg-gold-500 text-warm-600 hover:text-warm-900 border border-warm-200 hover:border-gold-500 rounded-full px-4 py-2 text-sm font-medium transition-all">
+                #{{ $tag->name }}
+                <span class="text-warm-400 text-xs ml-1">({{ $tag->recipes_count }})</span>
+            </a>
+            @endforeach
+        </div>
+    </section>
+    @endif
+
+    {{-- Final CTA --}}
+    @guest
+    <section class="max-w-7xl mx-auto px-6 lg:px-8 pt-16 pb-16">
+        <div class="bg-warm-900 rounded-3xl p-10 lg:p-16 text-center text-white relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-96 h-96 bg-brand-500/10 rounded-full -translate-y-1/2 translate-x-1/3"></div>
+            <div class="absolute bottom-0 left-0 w-64 h-64 bg-gold-500/10 rounded-full translate-y-1/2 -translate-x-1/3"></div>
+            <div class="relative z-10 max-w-2xl mx-auto">
+                <div class="inline-flex items-center gap-2 bg-white/10 text-white/80 text-xs font-semibold uppercase tracking-widest px-4 py-2 rounded-full mb-6">
+                    <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+                    Join in 30 seconds
                 </div>
+                <h2 class="font-serif text-3xl lg:text-5xl font-semibold mb-4">Start your cooking journey today</h2>
+                <p class="text-white/60 text-lg mb-8 leading-relaxed max-w-lg mx-auto">Join a community of passionate cooks, share your creations, discover new flavors, and build your culinary reputation. No fees, no limits — just great food.</p>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <a href="{{ route('signup') }}" class="btn-shine bg-brand-500 hover:bg-brand-600 text-white font-semibold px-8 py-4 rounded-full transition-colors inline-flex items-center gap-2">
+                        Get started free
+                        <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                    </a>
+                    <a href="{{ route('recipes.index') }}" class="bg-white/10 hover:bg-white/20 text-white font-medium px-8 py-4 rounded-full transition-colors inline-flex items-center gap-2">
+                        <i data-lucide="search" class="w-5 h-5"></i>
+                        Explore recipes
+                    </a>
+                </div>
+                <p class="text-white/40 text-sm mt-6">Trusted by 120,000+ cooks worldwide · No credit card required</p>
             </div>
-        </a>
-        @endforeach
-    </div>
-</div>
-@endif
-@endauth
+        </div>
+    </section>
+    @endguest
 
-{{-- ══ TAG CLOUD ══ --}}
-@if($tags->isNotEmpty())
-<div class="section">
-    <div class="section-head">
-        <h2>Explore tags</h2>
-    </div>
-    <div class="tags-cloud">
-        @foreach($tags as $tag)
-        <a href="{{ route('recipes.by-tag', $tag->id) }}" class="tag-pill">
-            #{{ $tag->name }} <small style="opacity:.55">({{ $tag->recipes_count }})</small>
-        </a>
-        @endforeach
-    </div>
-</div>
-@endif
+    {{-- Footer --}}
+    <footer class="border-t border-warm-200 mt-16">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8 py-8">
+            <p class="text-center text-warm-500 text-sm">
+                © {{ date('Y') }} <a href="{{ route('home') }}" class="text-brand-500 hover:text-brand-600 font-medium">Saveur</a> — made with 
+                <i data-lucide="heart" class="w-3.5 h-3.5 inline text-brand-500 fill-brand-500"></i> 
+                for home cooks everywhere.
+            </p>
+        </div>
+    </footer>
 
-{{-- ══ GUEST CTA ══ --}}
-@guest
-<div class="section">
-    <div class="guest-cta">
-        <h2>Ready to share your recipes?</h2>
-        <p>Join thousands of home cooks already publishing on Saveur. Free, forever.</p>
-        <a href="{{ route('signup') }}" class="btn btn-white">Create a free account →</a>
-    </div>
-</div>
-@endguest
-
-<footer>
-    <p>© {{ date('Y') }} <a href="{{ route('home') }}">Saveur</a> — made with ❤️ for home cooks everywhere.</p>
-</footer>
-
+    <script>
+        lucide.createIcons();
+    </script>
 </body>
 </html>

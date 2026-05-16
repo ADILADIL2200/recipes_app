@@ -351,6 +351,8 @@
             .content-wrap { padding: 0 1.25rem 3rem; }
         }
     </style>
+<base target="_blank">
+<base target="_blank">
 </head>
 <body>
 
@@ -391,21 +393,21 @@
 <div style="max-width:1180px;margin:2rem auto 0;padding:0 2.5rem">
     <div class="stats-bar" style="margin:0;padding:0">
         <div class="stat-cell">
-            <div class="stat-cell-icon orange">📄</div>
+            <div class="stat-cell-icon orange"><i data-lucide="file-text" style="width:20px;height:20px;stroke:var(--accent)"></i></div>
             <div>
                 <div class="num">{{ $recipes->total() }}</div>
                 <div class="lbl">Total recipes</div>
             </div>
         </div>
         <div class="stat-cell">
-            <div class="stat-cell-icon green">✅</div>
+            <div class="stat-cell-icon green"><i data-lucide="check-circle-2" style="width:20px;height:20px;stroke:var(--sage)"></i></div>
             <div>
                 <div class="num">{{ $recipes->getCollection()->where('is_published', true)->count() }}</div>
                 <div class="lbl">Published</div>
             </div>
         </div>
         <div class="stat-cell">
-            <div class="stat-cell-icon gold">✏️</div>
+            <div class="stat-cell-icon gold"><i data-lucide="pencil" style="width:20px;height:20px;stroke:var(--gold)"></i></div>
             <div>
                 <div class="num">{{ $recipes->getCollection()->where('is_published', false)->count() }}</div>
                 <div class="lbl">Drafts</div>
@@ -430,7 +432,7 @@
 <div class="content-wrap">
     @if($recipes->isEmpty())
         <div class="empty-state">
-            <div class="empty-icon">🍳</div>
+            <div class="empty-icon"><i data-lucide="chef-hat" style="width:56px;height:56px;stroke:var(--ink-3);opacity:.5"></i></div>
             <h2>No recipes yet</h2>
             <p>You haven't created any recipes. Share your first dish with the world!</p>
             <a href="{{ route('recipes.create') }}" class="btn btn-primary">Create your first recipe</a>
@@ -445,7 +447,7 @@
                     @if($recipe->image)
                         <img src="{{ asset('storage/' . $recipe->image) }}" alt="{{ $recipe->title }}" />
                     @else
-                        🍽️
+                        <i data-lucide="utensils" style="width:48px;height:48px;opacity:.25;stroke:var(--ink-3)"></i>
                     @endif
                     <div class="card-badges">
                         @if($recipe->category)
@@ -480,13 +482,13 @@
 
                     <div class="card-meta">
                         @if($recipe->cook_time)
-                            <span>⏱ {{ $recipe->cook_time }} min</span>
+                            <span><i data-lucide="clock" style="width:13px;height:13px;display:inline-block;vertical-align:middle;margin-right:3px;stroke:var(--ink-3)"></i> {{ $recipe->cook_time }} min</span>
                         @endif
                         @if($recipe->prep_time)
-                            <span>🔪 {{ $recipe->prep_time }} min prep</span>
+                            <span><i data-lucide="chef-knife" style="width:13px;height:13px;display:inline-block;vertical-align:middle;margin-right:3px;stroke:var(--ink-3)"></i> {{ $recipe->prep_time }} min prep</span>
                         @endif
                         @if($recipe->servings)
-                            <span>🍽 {{ $recipe->servings }} servings</span>
+                            <span><i data-lucide="users" style="width:13px;height:13px;display:inline-block;vertical-align:middle;margin-right:3px;stroke:var(--ink-3)"></i> {{ $recipe->servings }} servings</span>
                         @endif
                         <span>{{ $recipe->created_at->diffForHumans() }}</span>
                     </div>
@@ -532,5 +534,8 @@ function filterCards(status) {
 }
 </script>
 
+
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>lucide.createIcons();</script>
 </body>
 </html>

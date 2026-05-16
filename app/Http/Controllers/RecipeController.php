@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
+
 
 class RecipeController extends Controller
 {
@@ -130,6 +132,7 @@ class RecipeController extends Controller
 
         return view('recipes.index', compact('recipes', 'categories', 'tags', 'query'));
     }
+    
 
     // ── By Category ───────────────────────────────────
     public function byCategory(Category $category)
@@ -391,4 +394,27 @@ class RecipeController extends Controller
 
         return back()->with('success', $message);
     }
+    public function store_recipe(Request $request)
+{
+    $request->validate([
+        'recipe_id' => 'required|exists:recipes,id',
+    ]);
+
+    Favorite::firstOrCreate([
+        'user_id'   => auth()->id(),
+        'recipe_id' => $request->recipe_id,
+    ]);
+
+    return back()->with('success', 'Recipe added to favorites');
 }
+
+
+
+
+
+  
+}
+
+
+
+
