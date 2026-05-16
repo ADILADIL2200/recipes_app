@@ -1,25 +1,49 @@
 <?php
 
-namespace Database\Factories;
+namespace Database\Seeders;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\Tag;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
-class TagFactory extends Factory
+class TagSeeder extends Seeder
 {
-    public function definition(): array
+    public function run(): void
     {
         $tags = [
-            'Végétarien', 'Vegan', 'Sans gluten', 'Rapide', 'Facile',
-            'Économique', 'Healthy', 'Épicé', 'Sans lactose', 'Bio',
-            'Traditionnel', 'Exotique', 'Fait maison', 'Léger', 'Gourmand',
+            // Régimes alimentaires
+            'Végétarien', 'Vegan', 'Sans gluten', 'Sans lactose', 'Sans œufs',
+            'Bio', 'Cru', 'Halal', 'Casher',
+
+            // Niveau & temps de préparation
+            'Facile', 'Intermédiaire', 'Chef', 'Rapide', 'Moins de 30 min',
+            'Moins de 15 min', 'Longue cuisson', 'Préparation à l\'avance',
+
+            // Caractéristiques nutritionnelles
+            'Healthy', 'Léger', 'Riche en protéines', 'Faible en calories',
+             'Fait maison',
+
+            // Goût & texture
+            'Épicé', 'Gourmand', 'Croustillant', 'Fondant', 'Moelleux',
+            'Umami', 'Aigre-doux', 'Fumé', 'Sucré-salé',
+
+            // Occasion
+            'Repas de fête', 'Brunch', 'Pique-nique', 'Barbecue', 'Apéritif',
+            'Repas en famille', 'Repas romantique', 'Batch cooking', 'Repas froid',
+
+            // Origine culinaire
+            'Traditionnel', 'Exotique', 'Méditerranéen', 'Asiatique',
+            'Français', 'Italien', 'Mexicain', 'Indien', 'Marocain', 'Japonais',
+
+            // Saison
+            'Printemps', 'Été', 'Automne', 'Hiver',
         ];
 
-        $name = fake()->unique()->randomElement($tags);
-
-        return [
-            'name' => $name,
-            'slug' => Str::slug($name),
-        ];
+        foreach ($tags as $name) {
+            Tag::create([
+                'name' => $name,
+                'slug' => Str::slug($name),
+            ]);
+        }
     }
 }

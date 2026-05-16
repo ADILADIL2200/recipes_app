@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{{ $recipe->title }} — Saveur</title>
+    <title>{{ $recipe->title }} — Cuisto</title>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -57,20 +57,166 @@
         .btn-fav.active { background: var(--accent); color: #fff; }
         .btn-sm { font-size: .78rem; padding: .38rem .95rem; }
 
-        /* HERO */
-        .recipe-hero { width: 100%; aspect-ratio: 21/7; background: linear-gradient(160deg, #ecdec8 0%, #c9a87a 100%); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-        .recipe-hero img { width: 100%; height: 100%; object-fit: cover; }
-        .recipe-hero-placeholder { font-size: 7rem; opacity: .15; }
-        .recipe-hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(24,20,14,.65) 0%, transparent 55%); }
-        .recipe-hero-meta { position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%); width: 100%; max-width: 1180px; padding: 0 2.5rem; display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; }
-        .hero-title-block .cat-pill { display: inline-block; background: var(--accent); color: #fff; font-size: .7rem; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; padding: .28rem .8rem; border-radius: 999px; margin-bottom: .6rem; }
-        .hero-title-block h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 600; color: #fff; line-height: 1.1; text-shadow: 0 2px 12px rgba(0,0,0,.3); }
-        .hero-title-block .author-line { color: rgba(255,255,255,.75); font-size: .85rem; margin-top: .5rem; }
-        .hero-title-block .author-line strong { color: #fff; }
-        .hero-quick-stats { display: flex; gap: .8rem; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
-        .hero-stat-pill { background: rgba(255,255,255,.15); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,.25); border-radius: var(--r-md); padding: .6rem 1rem; text-align: center; color: #fff; }
-        .hero-stat-pill .val { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 600; line-height: 1; }
-        .hero-stat-pill .key { font-size: .65rem; font-weight: 500; text-transform: uppercase; letter-spacing: .06em; opacity: .7; margin-top: .2rem; }
+        /* HERO — Cinematic full-bleed */
+        .recipe-hero {
+            width: 100%;
+            height: 92vh;
+            min-height: 560px;
+            max-height: 820px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: flex-end;
+            background: #18140e;
+        }
+        .recipe-hero img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scale(1.0);
+            animation: heroZoom 20s ease-out forwards;
+            filter: brightness(.93) saturate(1.04);
+            will-change: transform;
+        }
+        @keyframes heroZoom {
+            from { transform: scale(1.02); }
+            to   { transform: scale(1.00); }
+        }
+        .recipe-hero-placeholder {
+            position: absolute; inset: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 9rem; opacity: .12;
+        }
+
+        /* Multi-layer cinematic overlay */
+        .recipe-hero-overlay {
+            position: absolute; inset: 0;
+            background:
+                linear-gradient(to top,  rgba(12,8,4,.92) 0%,  rgba(12,8,4,.55) 38%, transparent 65%),
+                linear-gradient(to right, rgba(12,8,4,.35) 0%, transparent 55%);
+        }
+        /* Subtle vignette ring */
+        .recipe-hero-vignette {
+            position: absolute; inset: 0;
+            box-shadow: inset 0 0 120px rgba(0,0,0,.45);
+            pointer-events: none;
+        }
+        /* Decorative horizontal rule line */
+        .recipe-hero-line {
+            position: absolute;
+            bottom: 168px;
+            left: 2.5rem;
+            right: 2.5rem;
+            max-width: 1180px;
+            margin: 0 auto;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 5rem);
+            height: 1px;
+            background: linear-gradient(to right, rgba(255,255,255,.22), rgba(255,255,255,.04));
+            pointer-events: none;
+        }
+
+        .recipe-hero-meta {
+            position: relative; z-index: 2;
+            width: 100%; max-width: 1180px;
+            margin: 0 auto;
+            padding: 0 2.5rem 2.8rem;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 2rem;
+            animation: heroFade .9s ease-out both;
+        }
+        @keyframes heroFade {
+            from { opacity: 0; transform: translateY(18px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero-title-block { flex: 1; min-width: 0; }
+
+        .cat-pill {
+            display: inline-flex; align-items: center; gap: .35rem;
+            background: var(--accent);
+            color: #fff;
+            font-size: .68rem; font-weight: 700;
+            letter-spacing: .1em; text-transform: uppercase;
+            padding: .32rem 1rem;
+            border-radius: 999px;
+            margin-bottom: .9rem;
+            box-shadow: 0 2px 12px rgba(184,74,28,.45);
+        }
+
+        .hero-title-block h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2.4rem, 5.5vw, 4.2rem);
+            font-weight: 600;
+            color: #fff;
+            line-height: 1.05;
+            letter-spacing: -.01em;
+            text-shadow: 0 4px 28px rgba(0,0,0,.45);
+            margin-bottom: .7rem;
+        }
+        .hero-title-block .author-line {
+            color: rgba(255,255,255,.65);
+            font-size: .88rem;
+            letter-spacing: .01em;
+        }
+        .hero-title-block .author-line strong { color: rgba(255,255,255,.92); }
+
+        /* Stats strip — vertical dividers */
+        .hero-quick-stats {
+            display: flex;
+            align-items: stretch;
+            gap: 0;
+            flex-shrink: 0;
+            border: 1px solid rgba(255,255,255,.18);
+            border-radius: var(--r-md);
+            overflow: hidden;
+            backdrop-filter: blur(14px);
+            background: rgba(255,255,255,.07);
+        }
+        .hero-stat-pill {
+            padding: .85rem 1.3rem;
+            text-align: center;
+            color: #fff;
+            position: relative;
+            min-width: 84px;
+        }
+        .hero-stat-pill + .hero-stat-pill::before {
+            content: '';
+            position: absolute; left: 0; top: 20%; bottom: 20%;
+            width: 1px;
+            background: rgba(255,255,255,.18);
+        }
+        .hero-stat-pill .val {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.6rem; font-weight: 600;
+            line-height: 1;
+            display: block;
+        }
+        .hero-stat-pill .key {
+            font-size: .6rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: .09em;
+            opacity: .6; margin-top: .3rem;
+            display: block;
+        }
+
+        /* Scroll indicator */
+        .hero-scroll-cue {
+            position: absolute; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+            z-index: 3;
+            display: flex; flex-direction: column; align-items: center; gap: .3rem;
+            color: rgba(255,255,255,.4); font-size: .62rem; letter-spacing: .1em; text-transform: uppercase;
+            animation: scrollBounce 2.2s ease-in-out infinite;
+        }
+        .hero-scroll-cue svg { width: 16px; opacity: .5; }
+        @keyframes scrollBounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50%       { transform: translateX(-50%) translateY(5px); }
+        }
 
         /* BREADCRUMB */
         .breadcrumb { max-width: 1180px; margin: 0 auto; padding: 1.2rem 2.5rem .5rem; display: flex; align-items: center; gap: .5rem; font-size: .8rem; color: var(--ink-3); }
@@ -143,10 +289,14 @@
         footer a { color: var(--accent); text-decoration: none; }
 
         @media (max-width: 800px) {
+            .recipe-hero { height: 75vh; min-height: 420px; }
             .recipe-layout { grid-template-columns: 1fr; }
             nav { padding: 0 1.25rem; }
-            .recipe-hero-meta { flex-direction: column; align-items: flex-start; }
-            .hero-quick-stats { justify-content: flex-start; }
+            .recipe-hero-meta { flex-direction: column; align-items: flex-start; gap: 1.2rem; }
+            .hero-quick-stats { align-self: stretch; }
+            .hero-stat-pill { flex: 1; }
+            .recipe-hero-line { display: none; }
+            .hero-scroll-cue { display: none; }
         }
     </style>
 </head>
@@ -162,7 +312,7 @@
 
 {{-- Nav --}}
 <nav>
-    <a href="{{ route('home') }}" class="nav-brand">Saveur</a>
+    <a href="{{ route('home') }}" class="nav-brand">Cuisto</a>
     <div class="nav-links">
         <a href="{{ route('recipes.index') }}">Recettes</a>
         @auth
@@ -193,46 +343,53 @@
         <div class="recipe-hero-placeholder">🍽️</div>
     @endif
     <div class="recipe-hero-overlay"></div>
+    <div class="recipe-hero-vignette"></div>
+    <div class="recipe-hero-line"></div>
     <div class="recipe-hero-meta">
         <div class="hero-title-block">
             @if($recipe->category)
-                <span class="cat-pill">{{ $recipe->category->name }}</span>
+                <span class="cat-pill">
+                    @if($recipe->category->icon){{ $recipe->category->icon }} @endif{{ $recipe->category->name }}
+                </span>
             @endif
             <h1>{{ $recipe->title }}</h1>
             @if($recipe->user)
                 <div class="author-line">
                     Par <strong>{{ $recipe->user->name }}</strong>
-                    · {{ $recipe->created_at->format('d M Y') }}
+                    · {{ $recipe->created_at->translatedFormat('d F Y') }}
                 </div>
             @endif
         </div>
         <div class="hero-quick-stats">
             @if($recipe->prep_time)
                 <div class="hero-stat-pill">
-                    <div class="val">{{ $recipe->prep_time }}<small style="font-size:.55em"> min</small></div>
-                    <div class="key">Prép.</div>
+                    <span class="val">{{ $recipe->prep_time }}<small style="font-size:.5em;opacity:.6"> min</small></span>
+                    <span class="key">Prép.</span>
                 </div>
             @endif
             @if($recipe->cook_time)
                 <div class="hero-stat-pill">
-                    <div class="val">{{ $recipe->cook_time }}<small style="font-size:.55em"> min</small></div>
-                    <div class="key">Cuisson</div>
+                    <span class="val">{{ $recipe->cook_time }}<small style="font-size:.5em;opacity:.6"> min</small></span>
+                    <span class="key">Cuisson</span>
                 </div>
             @endif
             @if($recipe->servings)
                 <div class="hero-stat-pill">
-                    <div class="val">{{ $recipe->servings }}</div>
-                    <div class="key">Portions</div>
+                    <span class="val">{{ $recipe->servings }}</span>
+                    <span class="key">Portions</span>
                 </div>
             @endif
             @php $avg = $recipe->ratings->avg('score') ?? 0; @endphp
             @if($recipe->ratings->count() > 0)
                 <div class="hero-stat-pill">
-                    <div class="val">{{ number_format($avg, 1) }}</div>
-                    <div class="key">Note</div>
+                    <span class="val">{{ number_format($avg, 1) }}</span>
+                    <span class="key">Note</span>
                 </div>
             @endif
         </div>
+    </div>
+    <div class="hero-scroll-cue">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 10l5 5 5-5"/></svg>
     </div>
 </div>
 
@@ -266,7 +423,7 @@
         @auth
         @if(Auth::id() === $recipe->user_id || Auth::user()->role === 'admin')
         <div class="owner-actions">
-            <span class="owner-actions-label">Gérer la recette</span>
+            <span class="owner-actions-label">⚙️ Gérer</span>
             <a href="{{ route('recipes.edit', $recipe) }}" class="btn btn-outline btn-sm">✏️ Modifier</a>
             <form method="POST" action="{{ route('recipes.destroy', $recipe) }}"
                   onsubmit="return confirm('Supprimer « {{ addslashes($recipe->title) }} » ? Cette action est irréversible.')">
@@ -460,7 +617,7 @@
 </div>
 
 <footer>
-    <p>© {{ date('Y') }} <a href="{{ route('home') }}">Saveur</a> — fait avec ❤️ pour les cuisiniers du monde entier.</p>
+    <p>© {{ date('Y') }} <a href="{{ route('home') }}">Cuisto</a> — fait avec  pour les cuisiniers du monde entier.</p>
 </footer>
 
 </body>

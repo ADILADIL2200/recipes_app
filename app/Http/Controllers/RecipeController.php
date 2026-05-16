@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
+
 
 class RecipeController extends Controller
 {
@@ -54,8 +56,8 @@ class RecipeController extends Controller
             ->get()
             ->each(fn($r) => $r->average_rating = $r->ratings_avg_score);
 
-        $userStats     = [];
-        $userFavorites = collect();
+        $userStats   = [];
+        $userFavoris = collect();   // ← même nom que dans home.blade.php
 
         if (Auth::check()) {
             $user = Auth::user();
@@ -64,7 +66,7 @@ class RecipeController extends Controller
                     'my_recipes_count'   => Recipe::where('user_id', $user->id)->count(),
                     'my_favorites_count' => Favorite::where('user_id', $user->id)->count(),
                 ];
-                $userFavorites = Favorite::with(['recipe.category'])
+                $userFavoris = Favorite::with(['recipe.category'])
                     ->where('user_id', $user->id)
                     ->latest()
                     ->limit(8)
@@ -77,7 +79,7 @@ class RecipeController extends Controller
         return view('home', compact(
             'stats', 'categories', 'tags',
             'popularRecipes', 'recentRecipes',
-            'userStats', 'userFavorites',
+            'userStats', 'userFavoris',   // ← nom corrigé
         ));
     }
 
@@ -130,6 +132,7 @@ class RecipeController extends Controller
 
         return view('recipes.index', compact('recipes', 'categories', 'tags', 'query'));
     }
+
 
     // ── By Category ───────────────────────────────────
     public function byCategory(Category $category)
@@ -391,4 +394,23 @@ class RecipeController extends Controller
 
         return back()->with('success', $message);
     }
+    public function store_recipe(Request $request)
+{
+    $request->validate([
+        'recipe_id' => 'required|exists:recipes,id',
+    ]);
+
+    Favorite::firstOrCreate([
+        'user_id'   => auth()->id(),
+        'recipe_id' => $request->recipe_id,
+    ]);
+
+    return back()->with('success', 'Recipe added to favorites');
+}
+
+
+
+
+
+
 }

@@ -1,34 +1,112 @@
 {{-- resources/views/profile/edit.blade.php --}}
 @extends('layouts.app')
 
-@section('title', 'Mon Profil')
+@section('title', 'Mon Profil — Cuisto')
 
 @section('styles')
 <style>
-.profile-grid { display: grid; grid-template-columns: 260px 1fr; gap: 2rem; align-items: start; }
-.profile-sidebar { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; position: sticky; top: 88px; }
-.profile-sidebar-head { padding: 2rem; text-align: center; border-bottom: 1px solid var(--border); }
-.avatar-ring { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 1rem; overflow: hidden; background: var(--accent-lt); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; }
+.profile-grid {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+.profile-sidebar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    position: sticky;
+    top: 86px;
+}
+.profile-sidebar-head {
+    padding: 2rem 1.5rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    background: #faf7f2;
+}
+.avatar-ring {
+    width: 78px; height: 78px;
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    overflow: hidden;
+    background: var(--accent-lt);
+    border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+}
 .avatar-ring img { width: 100%; height: 100%; object-fit: cover; }
-.avatar-initials { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 600; color: var(--accent); }
-.profile-sidebar-name { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; font-weight: 600; color: var(--ink); }
-.profile-sidebar-email { font-size: .8rem; color: var(--ink-3); margin-top: .2rem; }
-.profile-sidebar-nav { padding: .5rem 0; }
-.profile-sidebar-nav a { display: flex; align-items: center; gap: .6rem; padding: .7rem 1.5rem; font-size: .88rem; color: var(--ink-2); text-decoration: none; transition: all .15s; }
-.profile-sidebar-nav a:hover, .profile-sidebar-nav a.active { background: var(--accent-lt); color: var(--accent); }
+.avatar-initials {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.75rem; font-weight: 600; color: var(--accent);
+}
+.profile-sidebar-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem; font-weight: 600; color: var(--ink);
+    margin-bottom: .2rem;
+}
+.profile-sidebar-email { font-size: .78rem; color: var(--ink-3); }
 
-.form-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; margin-bottom: 1.25rem; }
-.form-section-head { padding: 1.25rem 1.75rem; border-bottom: 1px solid var(--border); background: #faf7f3; }
-.form-section-head h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 600; color: var(--ink); }
-.form-section-head p { font-size: .8rem; color: var(--ink-3); margin-top: .15rem; }
+.profile-sidebar-nav { padding: .5rem 0; }
+.profile-sidebar-nav a {
+    display: flex; align-items: center; gap: .65rem;
+    padding: .72rem 1.5rem;
+    font-size: .875rem; color: var(--ink-2);
+    text-decoration: none; transition: all .15s;
+    border-left: 2.5px solid transparent;
+    font-weight: 500;
+}
+.profile-sidebar-nav a:hover { background: var(--accent-lt); color: var(--accent); border-left-color: var(--accent); }
+.profile-sidebar-nav a.active { background: var(--accent-lt); color: var(--accent); border-left-color: var(--accent); }
+
+/* Icon dots for nav (replaces emoji) */
+.nav-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: currentColor; opacity: .4; flex-shrink: 0;
+}
+
+.form-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+}
+.form-section-head {
+    padding: 1.25rem 1.75rem;
+    border-bottom: 1px solid var(--border);
+    background: #faf7f2;
+}
+.form-section-head h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem; font-weight: 600; color: var(--ink);
+}
+.form-section-head p { font-size: .78rem; color: var(--ink-3); margin-top: .15rem; }
 .form-section-body { padding: 1.75rem; }
+
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 .form-field { margin-bottom: 1.1rem; }
 .form-field:last-child { margin-bottom: 0; }
-.form-actions { display: flex; align-items: center; justify-content: flex-end; gap: .75rem; padding-top: 1rem; border-top: 1px solid var(--border); margin-top: 1.5rem; }
 
-.file-upload-btn { display: inline-flex; align-items: center; gap: .5rem; padding: .5rem 1rem; background: var(--bg); border: 1.5px solid var(--border); border-radius: var(--r-md); font-size: .82rem; color: var(--ink-2); cursor: pointer; transition: all .18s; font-family: 'Outfit', sans-serif; }
-.file-upload-btn:hover { border-color: var(--accent); color: var(--accent); }
+.form-actions {
+    display: flex; align-items: center;
+    justify-content: flex-end; gap: .75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
+    margin-top: 1.5rem;
+}
+
+.file-upload-btn {
+    display: inline-flex; align-items: center; gap: .5rem;
+    padding: .52rem 1.1rem;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-md);
+    font-size: .82rem; color: var(--ink-2);
+    cursor: pointer; transition: all .18s;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+}
+.file-upload-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-lt); }
 input[type="file"] { display: none; }
 
 @media (max-width: 768px) {
@@ -42,10 +120,12 @@ input[type="file"] { display: none; }
 @section('content')
 <div class="page-wrap">
 
-    <div style="margin-bottom:2rem">
-        <div style="display:inline-block;width:36px;height:3px;background:var(--accent);border-radius:2px;margin-bottom:.75rem"></div>
-        <h1 style="font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:600;color:var(--ink)">Mon <em style="font-style:italic;color:var(--accent)">profil</em></h1>
-        <p style="font-size:.9rem;color:var(--ink-3);margin-top:.3rem">Gérez vos informations personnelles et votre mot de passe</p>
+    <div style="margin-bottom:2.5rem">
+        <div style="display:inline-block;width:32px;height:2px;background:var(--accent);border-radius:2px;margin-bottom:.9rem"></div>
+        <h1 style="font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:600;color:var(--ink);letter-spacing:-.015em">
+            Mon <em style="font-style:italic;color:var(--accent);font-weight:400">profil</em>
+        </h1>
+        <p style="font-size:.875rem;color:var(--ink-3);margin-top:.35rem;font-weight:300">Gérez vos informations personnelles et votre mot de passe</p>
     </div>
 
     @if(session('success'))
@@ -79,9 +159,18 @@ input[type="file"] { display: none; }
                     <div class="profile-sidebar-email">{{ $user->email }}</div>
                 </div>
                 <nav class="profile-sidebar-nav">
-                    <a href="{{ route('profile.edit') }}" class="active">Informations</a>
-                    <a href="{{ route('recipes.my') }}">Mes recettes</a>
-                    <a href="{{ route('recipes.favorites') }}">Favoris</a>
+                    <a href="{{ route('profile.edit') }}" class="active">
+                        <span class="nav-dot"></span>
+                        Informations
+                    </a>
+                    <a href="{{ route('recipes.my') }}">
+                        <span class="nav-dot"></span>
+                        Mes recettes
+                    </a>
+                    <a href="{{ route('recipes.favorites') }}">
+                        <span class="nav-dot"></span>
+                        Favoris
+                    </a>
                 </nav>
             </div>
 
@@ -108,7 +197,7 @@ input[type="file"] { display: none; }
                                 Changer la photo
                             </label>
                             <input type="file" id="avatarInput" name="avatar" accept="image/jpg,image/jpeg,image/png,image/webp">
-                            <p style="font-size:.75rem;color:var(--ink-3);margin-top:.5rem">Résolution recommandée : 400×400 px</p>
+                            <p style="font-size:.75rem;color:var(--ink-3);margin-top:.55rem">Résolution recommandée : 400 × 400 px</p>
                         </div>
                     </div>
                 </div>
@@ -130,9 +219,12 @@ input[type="file"] { display: none; }
                             </div>
                         </div>
                         <div class="form-field">
-                            <label class="form-label">Biographie <span style="font-weight:300;text-transform:none;letter-spacing:0">— facultatif</span></label>
+                            <label class="form-label">
+                                Biographie
+                                <span style="font-weight:300;text-transform:none;letter-spacing:0;font-size:.8em">&mdash; facultatif</span>
+                            </label>
                             <textarea name="bio" rows="3" maxlength="500" class="form-textarea" placeholder="Parlez-nous de vous, votre cuisine, vos inspirations...">{{ old('bio', $user->bio) }}</textarea>
-                            <div style="font-size:.72rem;color:var(--ink-3);text-align:right;margin-top:.3rem">Max 500 caractères</div>
+                            <div style="font-size:.72rem;color:var(--ink-3);text-align:right;margin-top:.35rem">Max 500 caractères</div>
                         </div>
                     </div>
                 </div>

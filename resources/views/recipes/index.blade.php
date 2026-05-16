@@ -1,331 +1,307 @@
 {{-- resources/views/recipes/index.blade.php --}}
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Parcourir les recettes — Saveur</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
-    <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        :root {
-            --bg:        #f9f6f1; --surface:   #ffffff;
-            --ink:       #18140e; --ink-2:     #5a4e3c; --ink-3:     #9a8e7e;
-            --accent:    #b84a1c; --accent-lt: #f5ede7;
-            --gold:      #c8972a; --sage:      #3d5c36;
-            --border:    #e8e0d4;
-            --r-sm: 8px; --r-md: 14px; --r-lg: 22px;
-        }
-        body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+@extends('layouts.app')
 
-        .flash       { background: var(--sage); color: #fff; text-align: center; padding: .6rem 1rem; font-size: .85rem; }
-        .flash-error { background: #c0392b; }
+@section('title', 'Parcourir les recettes — Cuisto')
 
-        nav { position: sticky; top: 0; z-index: 200; background: rgba(249,246,241,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 2.5rem; height: 68px; }
-        .nav-brand { font-family: 'Cormorant Garamond', serif; font-size: 1.9rem; font-weight: 600; color: var(--accent); text-decoration: none; }
-        .nav-links  { display: flex; align-items: center; gap: 1.8rem; }
-        .nav-links a { text-decoration: none; color: var(--ink-2); font-size: .9rem; font-weight: 500; transition: color .2s; }
-        .nav-links a:hover, .nav-links a.active { color: var(--accent); }
-        .btn { display: inline-flex; align-items: center; gap: .4rem; text-decoration: none; padding: .5rem 1.25rem; border-radius: 999px; font-family: 'Outfit', sans-serif; font-size: .85rem; font-weight: 500; cursor: pointer; border: 1.5px solid transparent; transition: all .18s; white-space: nowrap; }
-        .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-        .btn-primary:hover { background: #9e3a12; }
-        .btn-outline { background: transparent; color: var(--accent); border-color: var(--accent); }
-        .btn-outline:hover { background: var(--accent); color: #fff; }
-        .btn-ghost   { background: var(--surface); color: var(--ink-2); border-color: var(--border); }
-        .btn-ghost:hover { border-color: var(--ink-3); color: var(--ink); }
+@section('styles')
+<style>
+/* ── Page header ── */
+.recipes-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 3rem 2.5rem 2.5rem;
+}
+.recipes-header-inner { max-width: 1180px; margin: 0 auto; }
+.recipes-header-eyebrow { width: 32px; height: 2px; background: var(--accent); border-radius: 2px; margin-bottom: .9rem; }
+.recipes-header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.4rem; font-weight: 600; color: var(--ink);
+    line-height: 1.1; margin-bottom: .4rem; letter-spacing: -.015em;
+}
+.recipes-header h1 em { font-style: italic; color: var(--accent); font-weight: 400; }
+.recipes-header p { font-size: .9rem; color: var(--ink-3); font-weight: 300; }
 
-        /* Search Hero */
-        .search-hero { background: linear-gradient(135deg, #ecdec8 0%, #d4b896 100%); padding: 3rem 2.5rem 0; border-bottom: 1px solid var(--border); }
-        .search-hero-inner { max-width: 1180px; margin: 0 auto; }
-        .search-hero h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 600; color: var(--ink); margin-bottom: .4rem; }
-        .search-hero p  { font-size: .95rem; color: var(--ink-2); margin-bottom: 1.8rem; }
+/* ── Filters bar ── */
+.filters-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 2.5rem;
+    position: sticky; top: 66px; z-index: 100;
+}
+.filters-inner {
+    max-width: 1180px; margin: 0 auto;
+    display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+}
+.search-wrap { position: relative; flex: 1; min-width: 220px; max-width: 360px; }
+.search-wrap svg { position: absolute; left: .9rem; top: 50%; transform: translateY(-50%); color: var(--ink-3); pointer-events: none; }
+.search-input {
+    width: 100%; padding: .62rem 1rem .62rem 2.5rem;
+    background: var(--bg); border: 1.5px solid var(--border);
+    border-radius: 999px; font-family: 'DM Sans', sans-serif;
+    font-size: .85rem; color: var(--ink); outline: none;
+    transition: border-color .18s, box-shadow .18s;
+}
+.search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(184,74,28,.09); background: #fff; }
+.search-input::placeholder { color: #c0b4a4; }
 
-        .search-bar-wrap { position: relative; max-width: 680px; margin-bottom: -1.5rem; }
-        .search-bar-wrap input { width: 100%; padding: 1rem 1.2rem 1rem 3.2rem; border: 2px solid var(--border); border-radius: var(--r-lg); font-family: 'Outfit', sans-serif; font-size: 1rem; color: var(--ink); background: var(--surface); outline: none; transition: border-color .2s; box-shadow: 0 4px 20px rgba(0,0,0,.07); }
-        .search-bar-wrap input:focus { border-color: var(--accent); }
-        .search-bar-wrap .search-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); font-size: 1.1rem; opacity: .4; pointer-events: none; }
-        .search-bar-wrap button { position: absolute; right: .5rem; top: 50%; transform: translateY(-50%); }
+.filter-select {
+    padding: .6rem 2.2rem .6rem .9rem;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 999px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: .82rem; color: var(--ink-2); cursor: pointer; outline: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239a8e7e' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right .7rem center;
+    transition: border-color .18s;
+}
+.filter-select:focus { border-color: var(--accent); }
 
-        /* Layout */
-        .browse-layout { max-width: 1180px; margin: 0 auto; padding: 3.5rem 2.5rem 5rem; display: grid; grid-template-columns: 260px 1fr; gap: 2.5rem; align-items: start; }
+.filter-chip {
+    display: inline-flex; align-items: center;
+    padding: .5rem 1.1rem; border-radius: 999px;
+    font-size: .8rem; font-weight: 500; cursor: pointer;
+    border: 1.5px solid var(--border);
+    background: var(--surface); color: var(--ink-2);
+    text-decoration: none; transition: all .18s; white-space: nowrap;
+}
+.filter-chip:hover, .filter-chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 
-        /* Filters */
-        .filters-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; position: sticky; top: 88px; }
-        .filters-head  { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); background: #faf7f3; display: flex; align-items: center; justify-content: space-between; }
-        .filters-head h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; font-weight: 600; color: var(--ink); }
-        .filters-head a  { font-size: .75rem; color: var(--ink-3); text-decoration: none; }
-        .filters-head a:hover { color: var(--accent); }
-        .filter-section { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); }
-        .filter-section:last-child { border-bottom: none; }
-        .filter-label   { font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; color: var(--ink-3); margin-bottom: .6rem; }
-        .filter-section select, .filter-section input[type="number"] { width: 100%; background: var(--bg); border: 1.5px solid var(--border); border-radius: var(--r-sm); padding: .55rem .8rem; font-family: 'Outfit', sans-serif; font-size: .85rem; color: var(--ink); outline: none; transition: border-color .18s; }
-        .filter-section select:focus, .filter-section input:focus { border-color: var(--accent); }
-        .sort-pills { display: flex; flex-wrap: wrap; gap: .4rem; }
-        .sort-pill   { padding: .3rem .75rem; border-radius: 999px; border: 1.5px solid var(--border); background: var(--bg); font-size: .75rem; color: var(--ink-3); text-decoration: none; transition: all .18s; }
-        .sort-pill.active, .sort-pill:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
-        .filter-apply { padding: 1rem 1.25rem; }
-        .filter-apply button { width: 100%; background: var(--accent); color: #fff; border: none; border-radius: var(--r-md); padding: .65rem; font-family: 'Outfit', sans-serif; font-size: .85rem; font-weight: 600; cursor: pointer; transition: background .18s; }
-        .filter-apply button:hover { background: #9e3a12; }
+/* ── Recipe grid ── */
+.recipes-body { max-width: 1180px; margin: 0 auto; padding: 2.5rem 2.5rem 5rem; }
 
-        /* Results */
-        .results-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .75rem; margin-bottom: 1.5rem; }
-        .results-count  { font-size: .88rem; color: var(--ink-2); }
-        .results-count strong { color: var(--ink); }
-        .active-filters { display: flex; flex-wrap: wrap; gap: .4rem; }
-        .filter-chip    { display: inline-flex; align-items: center; gap: .4rem; background: var(--accent-lt); color: var(--accent); border: 1px solid #f0c4b2; border-radius: 999px; padding: .28rem .75rem; font-size: .78rem; font-weight: 500; text-decoration: none; transition: background .18s; }
-        .filter-chip:hover { background: #eeddd6; }
-        .filter-chip .remove { opacity: .65; }
+.recipes-meta {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1.75rem;
+}
+.recipes-count { font-size: .82rem; color: var(--ink-3); }
+.recipes-count strong { color: var(--ink-2); font-weight: 600; }
 
-        /* Recipe Grid */
-        .recipe-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.25rem; }
-        .recipe-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; text-decoration: none; color: inherit; display: flex; flex-direction: column; transition: box-shadow .2s, transform .2s; }
-        .recipe-card:hover { box-shadow: 0 8px 28px rgba(0,0,0,.09); transform: translateY(-2px); }
-        .card-img         { aspect-ratio: 16/10; background: linear-gradient(135deg,#ecdec8,#d4b896); overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center; }
-        .card-img img     { width: 100%; height: 100%; object-fit: cover; }
-        .card-img-placeholder { font-size: 2.5rem; opacity: .25; }
-        .card-cat         { position: absolute; top: .7rem; left: .7rem; background: rgba(24,20,14,.55); color: #fff; font-size: .68rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; padding: .22rem .65rem; border-radius: 999px; backdrop-filter: blur(6px); }
-        .card-body        { padding: 1rem; flex: 1; display: flex; flex-direction: column; gap: .4rem; }
-        .card-title       { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; font-weight: 600; color: var(--ink); line-height: 1.25; }
-        .card-meta        { display: flex; flex-wrap: wrap; gap: .5rem; font-size: .75rem; color: var(--ink-3); margin-top: auto; padding-top: .5rem; }
+.recipes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
 
-        /* Empty state */
-        .empty-state { grid-column: 1/-1; text-align: center; padding: 4rem 2rem; }
-        .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; opacity: .3; }
-        .empty-state h3    { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; color: var(--ink-2); margin-bottom: .5rem; }
-        .empty-state p     { color: var(--ink-3); font-size: .88rem; }
+/* ── Recipe card ── */
+.recipe-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    text-decoration: none;
+    display: flex; flex-direction: column;
+    transition: transform .35s cubic-bezier(.4,0,.2,1), box-shadow .35s cubic-bezier(.4,0,.2,1), border-color .2s;
+    position: relative;
+}
+.recipe-card:hover { transform: translateY(-5px); box-shadow: 0 20px 52px rgba(26,21,16,.13); border-color: rgba(184,74,28,.25); }
+.diff-easy   { background: #eaf2e8; color: #3d5c36; }
+.diff-medium { background: #fef6e4; color: #a87d1f; }
+.diff-hard   { background: #fdf0ef; color: #c0392b; }
 
-        /* Pagination */
-        .pagination-wrap { margin-top: 2rem; display: flex; justify-content: center; }
+.recipe-card-img {
+    aspect-ratio: 16/10;
+    background: linear-gradient(135deg, #e8ddd0, #d4c8b8);
+    position: relative; overflow: hidden;
+}
+.recipe-card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+.recipe-card:hover .recipe-card-img img { transform: scale(1.06); }
+.recipe-card-img-placeholder {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+}
+.recipe-card-img-placeholder svg { color: #c0b4a4; }
 
-        /* Context banner (by-category / by-tag) */
-        .context-banner { background: var(--accent-lt); border: 1px solid #f0c4b2; border-radius: var(--r-md); padding: .75rem 1.2rem; margin-bottom: 1.5rem; font-size: .88rem; color: var(--accent); font-weight: 500; }
+.recipe-cat {
+    position: absolute; top: .75rem; left: .75rem;
+    background: var(--accent); color: #fff;
+    font-size: .65rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .08em;
+    padding: .22rem .65rem; border-radius: 999px;
+}
 
-        footer { border-top: 1px solid var(--border); padding: 2rem 2.5rem; text-align: center; font-size: .82rem; color: var(--ink-3); }
-        footer a { color: var(--accent); text-decoration: none; }
+.recipe-card-body { padding: 1.25rem 1.25rem 1rem; flex: 1; display: flex; flex-direction: column; }
+.recipe-card-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem; font-weight: 600; color: var(--ink);
+    line-height: 1.3; margin-bottom: .5rem;
+    transition: color .18s;
+}
+.recipe-card:hover .recipe-card-title { color: var(--accent); }
 
-        @media (max-width: 900px) { .browse-layout { grid-template-columns: 1fr; } .filters-panel { position: static; } }
-        @media (max-width: 600px) { nav { padding: 0 1.25rem; } .search-hero { padding: 2rem 1.25rem 0; } .browse-layout { padding: 2.5rem 1.25rem 4rem; } }
-    </style>
-</head>
-<body>
+.recipe-card-desc { font-size: .8rem; color: var(--ink-3); line-height: 1.55; margin-bottom: auto; }
 
-@if(session('success'))<div class="flash">{{ session('success') }}</div>@endif
-@if(session('error'))<div class="flash flash-error">{{ session('error') }}</div>@endif
+.recipe-card-footer {
+    display: flex; align-items: center; gap: .75rem;
+    padding-top: .9rem; margin-top: .9rem;
+    border-top: 1px solid var(--border-lt);
+    font-size: .78rem; color: var(--ink-3);
+}
+.recipe-meta-item { display: flex; align-items: center; gap: .3rem; }
+.recipe-meta-item svg { flex-shrink: 0; }
 
-{{-- Nav --}}
-<nav>
-    <a href="{{ route('home') }}" class="nav-brand">Saveur</a>
-    <div class="nav-links">
-        <a href="{{ route('recipes.index') }}" class="active">Recettes</a>
-        @auth
-            @if(Auth::user()->role === 'admin')
-                <a href="{{ route('admin.dashboard') }}">Admin</a>
-            @else
-                <a href="{{ route('recipes.my') }}">Mes recettes</a>
-                <a href="{{ route('recipes.favorites') }}">Favoris</a>
-                <a href="{{ route('recipes.create') }}" class="btn btn-primary">+ Nouvelle</a>
-            @endif
-            <form method="POST" action="{{ route('logout') }}" style="display:inline">
-                @csrf
-                <button type="submit" class="btn btn-ghost">Déconnexion</button>
-            </form>
-        @else
-            <a href="{{ route('login') }}" class="btn btn-outline">Connexion</a>
-            <a href="{{ route('signup') }}" class="btn btn-primary">S'inscrire</a>
-        @endauth
-    </div>
-</nav>
+/* ── Empty state ── */
+.empty-state {
+    text-align: center; padding: 5rem 2rem;
+    color: var(--ink-3);
+}
+.empty-state-icon { margin: 0 auto 1.5rem; width: 56px; height: 56px; opacity: .3; }
+.empty-state h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 600; color: var(--ink-2); margin-bottom: .5rem; }
+.empty-state p { font-size: .88rem; margin-bottom: 1.5rem; }
 
-{{-- Search Hero --}}
-<div class="search-hero">
-    <div class="search-hero-inner">
-        <h1>Parcourir les recettes</h1>
-        <p>Recherchez par ingrédient, catégorie, tag ou temps de cuisson.</p>
-        <form action="{{ route('recipes.index') }}" method="GET">
-            <div class="search-bar-wrap">
-                <span class="search-icon">🔍</span>
-                <input type="text" name="q" value="{{ request('q') }}" placeholder="Rechercher une recette...">
-                <button type="submit" class="btn btn-primary">Rechercher</button>
-            </div>
-        </form>
+/* ── Pagination ── */
+.pagination { display: flex; align-items: center; justify-content: center; gap: .5rem; margin-top: 3rem; }
+.pagination a, .pagination span {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 38px; height: 38px; border-radius: var(--r-sm);
+    font-size: .85rem; font-weight: 500; text-decoration: none;
+    border: 1.5px solid var(--border);
+    color: var(--ink-2); background: var(--surface);
+    transition: all .18s;
+}
+.pagination a:hover { border-color: var(--accent); color: var(--accent); }
+.pagination .active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.pagination .disabled { opacity: .35; pointer-events: none; }
+
+@media (max-width: 768px) {
+    .recipes-header { padding: 2rem 1.25rem; }
+    .filters-bar { padding: .9rem 1.25rem; }
+    .recipes-body { padding: 2rem 1.25rem 4rem; }
+    .recipes-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 480px) {
+    .recipes-grid { grid-template-columns: 1fr; }
+}
+</style>
+@endsection
+
+@section('content')
+
+<div class="recipes-header">
+    <div class="recipes-header-inner">
+        <div class="recipes-header-eyebrow"></div>
+        <h1>Toutes les <em>recettes</em></h1>
+        <p>Découvrez l'ensemble de notre collection culinaire — filtrée et triée selon vos envies</p>
     </div>
 </div>
 
-{{-- Layout --}}
-<div class="browse-layout">
-
-    {{-- Filters --}}
-    <aside>
-        <form action="{{ route('recipes.index') }}" method="GET">
-            <input type="hidden" name="q" value="{{ request('q') }}">
-            <div class="filters-panel">
-                <div class="filters-head">
-                    <h3>Filtres</h3>
-                    <a href="{{ route('recipes.index') }}">Réinitialiser</a>
-                </div>
-
-                <div class="filter-section">
-                    <div class="filter-label">Catégorie</div>
-                    <select name="category_id">
-                        <option value="">Toutes les catégories</option>
-                        @foreach($categories as $cat)
-                            <option value="{{ $cat->id }}" {{ request('category_id') == $cat->id ? 'selected' : '' }}>
-                                {{ $cat->name }} ({{ $cat->recipes_count }})
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="filter-section">
-                    <div class="filter-label">Tag</div>
-                    <select name="tag_id">
-                        <option value="">Tous les tags</option>
-                        @foreach($tags as $tag)
-                            <option value="{{ $tag->id }}" {{ request('tag_id') == $tag->id ? 'selected' : '' }}>
-                                #{{ $tag->name }} ({{ $tag->recipes_count }})
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="filter-section">
-                    <div class="filter-label">Temps total max (min)</div>
-                    <input type="number" name="max_time" min="5" step="5"
-                           value="{{ request('max_time') }}" placeholder="ex. 60">
-                </div>
-
-                <div class="filter-section">
-                    <div class="filter-label">Note minimum</div>
-                    <select name="min_rating">
-                        <option value="">Toutes les notes</option>
-                        @foreach([5,4,3,2,1] as $r)
-                            <option value="{{ $r }}" {{ request('min_rating') == $r ? 'selected' : '' }}>
-                                {{ str_repeat('●', $r) }}{{ str_repeat('○', 5-$r) }} {{ $r }}+
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="filter-section">
-                    <div class="filter-label">Trier par</div>
-                    <div class="sort-pills">
-                        @foreach(['date' => 'Récent', 'rating' => 'Note', 'popularity' => 'Populaire', 'cook_time' => 'Rapide'] as $val => $label)
-                            <a href="{{ request()->fullUrlWithQuery(['sort' => $val, 'page' => null]) }}"
-                               class="sort-pill {{ request('sort', 'date') === $val ? 'active' : '' }}">
-                                {{ $label }}
-                            </a>
-                        @endforeach
-                    </div>
-                    <input type="hidden" name="sort" value="{{ request('sort', 'date') }}">
-                </div>
-
-                <div class="filter-apply">
-                    <button type="submit">Appliquer les filtres</button>
-                </div>
-            </div>
-        </form>
-    </aside>
-
-    {{-- Results --}}
-    <div>
-
-        {{-- Context banner (by-category / by-tag) --}}
-        @isset($category)
-            <div class="context-banner">📂 Catégorie : <strong>{{ $category->name }}</strong> — <a href="{{ route('recipes.index') }}" style="color:var(--accent)">Voir tout</a></div>
-        @endisset
-        @isset($tag)
-            <div class="context-banner">#{{ $tag->name }} — <a href="{{ route('recipes.index') }}" style="color:var(--accent)">Voir tout</a></div>
-        @endisset
-
-        {{-- Results header --}}
-        <div class="results-header">
-            <div class="results-count">
-                <strong>{{ $recipes->total() }}</strong> recette{{ $recipes->total() > 1 ? 's' : '' }} trouvée{{ $recipes->total() > 1 ? 's' : '' }}
-                @if($query) pour « <strong>{{ $query }}</strong> » @endif
-            </div>
-            <div class="active-filters">
-                @if(request('q'))
-                    <a href="{{ request()->fullUrlWithQuery(['q'=>null,'page'=>null]) }}" class="filter-chip">
-                        "{{ Str::limit(request('q'),20) }}" <span class="remove">✕</span>
-                    </a>
-                @endif
-                @if(request('category_id'))
-                    @php $fc = $categories->firstWhere('id', request('category_id')); @endphp
-                    @if($fc)
-                    <a href="{{ request()->fullUrlWithQuery(['category_id'=>null,'page'=>null]) }}" class="filter-chip">
-                        {{ $fc->name }} <span class="remove">✕</span>
-                    </a>
-                    @endif
-                @endif
-                @if(request('tag_id'))
-                    @php $ft = $tags->firstWhere('id', request('tag_id')); @endphp
-                    @if($ft)
-                    <a href="{{ request()->fullUrlWithQuery(['tag_id'=>null,'page'=>null]) }}" class="filter-chip">
-                        #{{ $ft->name }} <span class="remove">✕</span>
-                    </a>
-                    @endif
-                @endif
-                @if(request('max_time'))
-                    <a href="{{ request()->fullUrlWithQuery(['max_time'=>null,'page'=>null]) }}" class="filter-chip">≤ {{ request('max_time') }}min <span class="remove">✕</span></a>
-                @endif
-                @if(request('min_rating'))
-                    <a href="{{ request()->fullUrlWithQuery(['min_rating'=>null,'page'=>null]) }}" class="filter-chip">{{ request('min_rating') }}●+ <span class="remove">✕</span></a>
-                @endif
-            </div>
+<div class="filters-bar">
+    <form method="GET" action="{{ route('recipes.index') }}" class="filters-inner">
+        <div class="search-wrap">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" name="q" value="{{ request('q') }}" class="search-input" placeholder="Rechercher une recette...">
         </div>
 
-        {{-- Cards --}}
-        <div class="recipe-grid">
-            @forelse($recipes as $recipe)
-                <a href="{{ route('recipes.show', $recipe) }}" class="recipe-card">
-                    <div class="card-img">
-                        @if($recipe->image)
-                            <img src="{{ asset('storage/' . $recipe->image) }}" alt="{{ $recipe->title }}">
-                        @else
-                            <div class="card-img-placeholder">🍽️</div>
-                        @endif
-                        @if($recipe->category)
-                            <span class="card-cat">{{ $recipe->category->name }}</span>
-                        @endif
-                    </div>
-                    <div class="card-body">
-                        <div class="card-title">{{ $recipe->title }}</div>
-                        @if($recipe->description)
-                            <p style="font-size:.82rem;color:var(--ink-3);line-height:1.5;flex:1">{{ Str::limit($recipe->description, 80) }}</p>
-                        @endif
-                        <div class="card-meta">
-                            @if($recipe->average_rating ?? $recipe->ratings_avg_score)
-                                <span style="color:var(--gold)">{{ number_format($recipe->average_rating ?? $recipe->ratings_avg_score, 1) }} ●</span>
-                            @endif
-                            @if($recipe->prep_time || $recipe->cook_time)
-                                <span>⏱ {{ ($recipe->prep_time ?? 0) + ($recipe->cook_time ?? 0) }}min</span>
-                            @endif
-                            @if($recipe->servings)
-                                <span>🍽 {{ $recipe->servings }}</span>
-                            @endif
-                        </div>
-                    </div>
-                </a>
-            @empty
-                <div class="empty-state">
-                    <div class="icon">🔍</div>
-                    <h3>Aucune recette trouvée</h3>
-                    <p>Essayez d'ajuster votre recherche ou vos filtres.</p>
-                </div>
-            @endforelse
-        </div>
-
-        @if($recipes->hasPages())
-        <div class="pagination-wrap">
-            {{ $recipes->onEachSide(1)->links() }}
-        </div>
+        @if($categories->isNotEmpty())
+        <select name="category" class="filter-select" onchange="this.form.submit()">
+            <option value="">Toutes catégories</option>
+            @foreach($categories as $cat)
+                <option value="{{ $cat->id }}" @selected(request('category') == $cat->id)>{{ $cat->name }}</option>
+            @endforeach
+        </select>
         @endif
-    </div>
 
+        <select name="difficulty" class="filter-select" onchange="this.form.submit()">
+            <option value="">Tout niveau</option>
+            <option value="facile"    @selected(request('difficulty')=='facile')>Facile</option>
+            <option value="moyen"     @selected(request('difficulty')=='moyen')>Moyen</option>
+            <option value="difficile" @selected(request('difficulty')=='difficile')>Difficile</option>
+        </select>
+
+        <select name="sort" class="filter-select" onchange="this.form.submit()">
+            <option value="recent"  @selected(request('sort','recent')=='recent')>Plus récentes</option>
+            <option value="popular" @selected(request('sort')=='popular')>Populaires</option>
+            <option value="rating"  @selected(request('sort')=='rating')>Mieux notées</option>
+            <option value="quick"   @selected(request('sort')=='quick')>Plus rapides</option>
+        </select>
+
+        @if(request()->hasAny(['q','category','difficulty','sort']))
+            <a href="{{ route('recipes.index') }}" class="filter-chip">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:.3rem"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                Effacer
+            </a>
+        @endif
+    </form>
 </div>
 
-<footer>
-    <p>© {{ date('Y') }} <a href="{{ route('home') }}">Saveur</a> — fait pour les cuisiniers du monde entier.</p>
-</footer>
-</body>
-</html>
+<div class="recipes-body">
+
+    <div class="recipes-meta">
+        <span class="recipes-count">
+            <strong>{{ $recipes->total() }}</strong> recette{{ $recipes->total() > 1 ? 's' : '' }} trouvée{{ $recipes->total() > 1 ? 's' : '' }}
+        </span>
+    </div>
+
+    @if($recipes->isNotEmpty())
+        <div class="recipes-grid">
+            @foreach($recipes as $recipe)
+            <a href="{{ route('recipes.show', $recipe) }}" class="recipe-card">
+                <div class="recipe-card-img">
+                    @if($recipe->image)
+                        <img src="{{ asset('storage/' . $recipe->image) }}" alt="{{ $recipe->title }}" loading="lazy">
+                    @else
+                        <div class="recipe-card-img-placeholder">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Z"/></svg>
+                        </div>
+                    @endif
+                    @if($recipe->category)
+                        <span class="recipe-cat">{{ $recipe->category->name }}</span>
+                    @endif
+                </div>
+                <div class="recipe-card-body">
+                    <div class="recipe-card-title">{{ $recipe->title }}</div>
+                    @if($recipe->description)
+                        <p class="recipe-card-desc">{{ Str::limit($recipe->description, 80) }}</p>
+                    @endif
+                    <div class="recipe-card-footer">
+                        @if($recipe->average_rating)
+                            <span class="recipe-meta-item">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="#c8972a" stroke="#c8972a" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                {{ number_format($recipe->average_rating, 1) }}
+                            </span>
+                        @endif
+                        @if($recipe->cook_time)
+                            <span class="recipe-meta-item">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                {{ $recipe->cook_time }} min
+                            </span>
+                        @endif
+                        @if($recipe->difficulty)
+                            @php
+                                $diffClass = match($recipe->difficulty) {
+                                    'facile' => 'diff-easy',
+                                    'moyen' => 'diff-medium',
+                                    'difficile' => 'diff-hard',
+                                    default => ''
+                                };
+                            @endphp
+                            <span class="recipe-meta-item {{ $diffClass }}" style="padding:.15rem .5rem;border-radius:999px;font-size:.7rem;font-weight:600">{{ ucfirst($recipe->difficulty) }}</span>
+                        @endif
+                        <span style="margin-left:auto;font-size:.72rem;display:flex;align-items:center;gap:.3rem">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            {{ $recipe->user->name }}
+                        </span>
+                    </div>
+                </div>
+            </a>
+            @endforeach
+        </div>
+
+        <div class="pagination">
+            {{ $recipes->withQueryString()->links() }}
+        </div>
+
+    @else
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Z"/></svg>
+            </div>
+            <h3>Aucune recette trouvée</h3>
+            <p>Essayez de modifier vos filtres ou votre recherche.</p>
+            <a href="{{ route('recipes.index') }}" class="btn btn-ghost">Voir toutes les recettes</a>
+        </div>
+    @endif
+
+</div>
+@endsection

@@ -4,6 +4,7 @@ use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Api\ChatbotController;
 use Illuminate\Support\Facades\Route;
 
 // ====================== AUTH (guests only) ======================
@@ -13,7 +14,6 @@ Route::middleware('guest')->group(function () {
     Route::get('/signup',  [UserController::class, 'showSignup'])->name('signup');
     Route::post('/signup', [UserController::class, 'signup']);
 
-    // Mot de passe oublié
     Route::get('/forgot-password',        [ForgotPasswordController::class, 'showForgotForm'])->name('password.request');
     Route::post('/forgot-password',       [ForgotPasswordController::class, 'sendResetLink'])->name('password.email');
     Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
@@ -34,7 +34,6 @@ Route::get('/tags/{tag}/recipes',            [RecipeController::class, 'byTag'])
 // ── RECIPE CRUD (auth required) ──────────────────────────────
 Route::middleware('auth')->group(function () {
 
-    // IMPORTANT: /recipes/create AVANT /recipes/{recipe}
     Route::get ('/recipes/create', [RecipeController::class, 'create'])->name('recipes.create');
     Route::post('/recipes',        [RecipeController::class, 'store']) ->name('recipes.store');
 
@@ -45,15 +44,21 @@ Route::middleware('auth')->group(function () {
     Route::put   ('/recipes/{recipe}',      [RecipeController::class, 'update']) ->name('recipes.update');
     Route::delete('/recipes/{recipe}',      [RecipeController::class, 'destroy'])->name('recipes.destroy');
 
-    Route::post('/recipes/{recipe}/rate',     [RecipeController::class, 'rate'])           ->name('recipes.rate');
+    Route::post('/recipes/{recipe}/rate',     [RecipeController::class, 'rate'])          ->name('recipes.rate');
     Route::post('/recipes/{recipe}/favorite', [RecipeController::class, 'toggleFavorite'])->name('recipes.favorite');
 
     // Profil
     Route::get('/profile', [UserController::class, 'showProfile'])->name('profile.edit');
     Route::put('/profile', [UserController::class, 'updateProfile'])->name('profile.update');
+    Route::post('/favorites', [RecipeController::class, 'store_recipe'])->name('favorites');
+
+    // ── Chatbot IA ─────────────────────────────────────────────
+    // NE PAS utiliser le préfixe /api/ — sinon Laravel route via le kernel API
+    // et le middleware CSRF est exclu → erreur 419
+    Route::post('/chatbot/recipe', [ChatbotController::class, 'recipe'])->name('chatbot.recipe');
 });
 
-// Show public (la méthode gère l'accès aux brouillons)
+// Show public
 Route::get('/recipes/{recipe}', [RecipeController::class, 'show'])->name('recipes.show');
 
 // ====================== ADMIN ======================
@@ -78,7 +83,6 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::delete('/tags/{tag}',  [AdminController::class, 'destroyTag'])->name('tags.destroy');
 
     // Recipes admin
-    Route::get   ('/recipes',                 [AdminController::class, 'recipes'])       ->name('recipes');
     Route::patch ('/recipes/{recipe}/toggle', [AdminController::class, 'toggleRecipe'])  ->name('recipes.toggle');
     Route::delete('/recipes/{recipe}',        [AdminController::class, 'destroyRecipe']) ->name('recipes.destroy');
 });

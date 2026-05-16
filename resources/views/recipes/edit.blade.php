@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Modifier {{ $recipe->title }} — Saveur</title>
+    <title>Modifier {{ $recipe->title }} — Cuisto</title>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -105,7 +105,7 @@
 @if(session('error'))<div class="flash flash-error">{{ session('error') }}</div>@endif
 
 <nav>
-    <a href="{{ route('home') }}" class="nav-brand">Saveur</a>
+    <a href="{{ route('home') }}" class="nav-brand">Cuisto</a>
     <div class="nav-links">
         <a href="{{ route('recipes.show', $recipe) }}">← Voir la recette</a>
         <a href="{{ route('recipes.my') }}">Mes recettes</a>
@@ -119,8 +119,15 @@
 <div class="page-wrap">
 
     <div class="page-head">
+        <div style="display:inline-block;width:28px;height:2px;background:var(--accent);border-radius:2px;margin-bottom:.75rem"></div>
         <h1>Modifier la recette</h1>
         <p>{{ $recipe->title }}</p>
+        <div style="display:flex;align-items:center;gap:.75rem;margin-top:.75rem">
+            <span style="display:inline-flex;align-items:center;gap:.35rem;font-size:.75rem;font-weight:600;padding:.25rem .75rem;border-radius:999px;background:{{ $recipe->is_published ? '#eaf2e8' : '#fef6e4' }};color:{{ $recipe->is_published ? '#3d5c36' : '#a87d1f' }}">
+                {{ $recipe->is_published ? '✓ Publiée' : '○ Brouillon' }}
+            </span>
+            <span style="font-size:.75rem;color:var(--ink-3)">Dernière modification {{ $recipe->updated_at->diffForHumans() }}</span>
+        </div>
     </div>
 
     @if($errors->any())
@@ -280,14 +287,17 @@
         {{-- Actions --}}
         <div class="form-actions">
             <a href="{{ route('recipes.show', $recipe) }}" class="btn btn-ghost">← Annuler</a>
-            <button type="submit" class="btn-submit">💾 Enregistrer les modifications</button>
+            <div style="display:flex;align-items:center;gap:.75rem">
+                <a href="{{ route('recipes.show', $recipe) }}" class="btn btn-outline" style="font-size:.82rem">👁 Voir la recette</a>
+                <button type="submit" class="btn-submit">💾 Enregistrer les modifications</button>
+            </div>
         </div>
 
     </form>
 </div>
 
 <footer>
-    <p>© {{ date('Y') }} <a href="{{ route('home') }}">Saveur</a></p>
+    <p>© {{ date('Y') }} <a href="{{ route('home') }}">Cuisto</a> — La cuisine, simplement.</p>
 </footer>
 
 <script>

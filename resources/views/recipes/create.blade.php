@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Nouvelle recette — Saveur</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Nouvelle recette — Cuisto</title>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
@@ -196,7 +197,7 @@
 
     {{-- Header --}}
     <header class="sfwiz-header">
-        <div class="sfwiz-logo">Saveur<span>.</span></div>
+        <div class="sfwiz-logo">Cuisto<span>.</span></div>
 
         <nav class="sfwiz-steps-nav">
             @foreach([1=>'Infos',2=>'Tags',3=>'Recette',4=>'Photo',5=>'Publication'] as $n => $lbl)
@@ -585,6 +586,448 @@ if (dz) {
         }
     });
 }
+</script>
+{{--
+    ════════════════════════════════════════════════════════
+    CHATBOT IA — Génération automatique de recette
+    À coller juste avant </body> dans create.blade.php
+    ════════════════════════════════════════════════════════
+--}}
+
+{{-- ── Styles chatbot ─────────────────────────────────────── --}}
+<style>
+/* Bouton flottant */
+#cb-fab {
+    position: fixed; bottom: 1.8rem; right: 1.8rem; z-index: 9000;
+    width: 56px; height: 56px; border-radius: 50%;
+    background: var(--accent); color: #fff;
+    border: none; cursor: pointer;
+    box-shadow: 0 4px 18px rgba(184,74,28,.42);
+    display: flex; align-items: center; justify-content: center;
+    transition: transform .22s, background .22s;
+    font-size: 1.45rem;
+}
+#cb-fab:hover { background: var(--accent-dark); transform: scale(1.08); }
+#cb-fab .cb-fab-badge {
+    position: absolute; top: -3px; right: -3px;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: #22c55e; border: 2px solid var(--cream);
+    font-size: .48rem; font-weight: 700; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+}
+
+/* Fenêtre chat */
+#cb-window {
+    position: fixed; bottom: 5.2rem; right: 1.8rem; z-index: 9001;
+    width: 370px; max-width: calc(100vw - 2rem);
+    border-radius: 18px;
+    background: var(--white);
+    border: 1px solid var(--sand);
+    box-shadow: 0 12px 50px rgba(24,20,14,.16);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+    transition: opacity .28s, transform .28s;
+    opacity: 0; transform: translateY(18px) scale(.96);
+    pointer-events: none;
+    max-height: 560px;
+}
+#cb-window.cb-open {
+    opacity: 1; transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+/* Header chatbot */
+.cb-header {
+    background: var(--accent);
+    padding: .85rem 1.1rem;
+    display: flex; align-items: center; gap: .7rem;
+    flex-shrink: 0;
+}
+.cb-header-avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: rgba(255,255,255,.22);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+}
+.cb-header-info strong { font-size: .88rem; font-weight: 600; color: #fff; display: block; }
+.cb-header-info span   { font-size: .68rem; color: rgba(255,255,255,.75); }
+.cb-header-close {
+    margin-left: auto; background: none; border: none;
+    color: rgba(255,255,255,.8); font-size: 1.1rem; cursor: pointer;
+    line-height: 1; padding: .15rem .3rem; border-radius: 6px;
+    transition: background .18s;
+}
+.cb-header-close:hover { background: rgba(255,255,255,.15); color: #fff; }
+
+/* Messages */
+.cb-messages {
+    flex: 1; overflow-y: auto; padding: 1rem;
+    display: flex; flex-direction: column; gap: .7rem;
+    font-size: .83rem; line-height: 1.55;
+}
+.cb-messages::-webkit-scrollbar { width: 3px; }
+.cb-messages::-webkit-scrollbar-thumb { background: var(--sand-dark); border-radius: 3px; }
+
+.cb-msg { display: flex; flex-direction: column; max-width: 88%; }
+.cb-msg.bot { align-self: flex-start; }
+.cb-msg.user { align-self: flex-end; }
+
+.cb-bubble {
+    padding: .55rem .85rem; border-radius: 14px;
+    font-family: var(--font-b); font-size: .83rem; line-height: 1.55;
+}
+.cb-msg.bot  .cb-bubble { background: var(--cream); color: var(--text); border: 1px solid var(--sand); border-bottom-left-radius: 4px; }
+.cb-msg.user .cb-bubble { background: var(--accent); color: #fff; border-bottom-right-radius: 4px; }
+
+.cb-timestamp { font-size: .6rem; color: var(--muted); margin-top: .2rem; }
+.cb-msg.user .cb-timestamp { text-align: right; }
+
+/* Chips de suggestion */
+.cb-chips { display: flex; flex-wrap: wrap; gap: .38rem; margin-top: .45rem; }
+.cb-chip {
+    font-size: .74rem; padding: .28rem .75rem; border-radius: 999px;
+    border: 1.5px solid var(--accent); color: var(--accent);
+    background: transparent; cursor: pointer; font-family: var(--font-b);
+    transition: all .18s;
+}
+.cb-chip:hover { background: var(--accent); color: #fff; }
+
+/* Typing indicator */
+.cb-typing { display: flex; align-items: center; gap: .28rem; padding: .5rem .85rem; background: var(--cream); border: 1px solid var(--sand); border-radius: 14px; border-bottom-left-radius: 4px; width: fit-content; }
+.cb-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); animation: cbBounce 1.2s infinite ease-in-out; }
+.cb-dot:nth-child(2) { animation-delay: .2s; }
+.cb-dot:nth-child(3) { animation-delay: .4s; }
+@keyframes cbBounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+
+/* Input bar */
+.cb-inputbar {
+    border-top: 1px solid var(--sand);
+    padding: .7rem .85rem;
+    display: flex; gap: .5rem; align-items: flex-end;
+    flex-shrink: 0;
+    background: var(--white);
+}
+.cb-inputbar textarea {
+    flex: 1; font-family: var(--font-b); font-size: .82rem;
+    color: var(--text-dark); background: var(--cream);
+    border: 1.5px solid var(--sand); border-radius: 10px;
+    padding: .5rem .8rem; outline: none; resize: none;
+    min-height: 38px; max-height: 90px; line-height: 1.5;
+    transition: border-color .2s, box-shadow .2s;
+}
+.cb-inputbar textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(184,74,28,.09); background: var(--white); }
+.cb-inputbar textarea::placeholder { color: #c5b8a8; font-weight: 300; }
+.cb-send {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--accent); color: #fff; border: none;
+    cursor: pointer; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .18s; font-size: .9rem;
+}
+.cb-send:hover { background: var(--accent-dark); }
+.cb-send:disabled { background: var(--sand); cursor: default; }
+
+/* Barre d'action : remplir le formulaire */
+.cb-action-bar {
+    border-top: 1px solid var(--sand);
+    padding: .65rem .85rem;
+    background: var(--accent-pale);
+    display: flex; align-items: center; gap: .6rem;
+    flex-shrink: 0;
+}
+.cb-action-bar p { font-size: .74rem; color: var(--text-light); flex: 1; line-height: 1.4; }
+.cb-btn-fill {
+    flex-shrink: 0; background: var(--accent); color: #fff;
+    border: none; border-radius: 999px; padding: .4rem 1rem;
+    font-size: .78rem; font-weight: 600; cursor: pointer;
+    font-family: var(--font-b); transition: background .18s;
+    display: flex; align-items: center; gap: .3rem;
+}
+.cb-btn-fill:hover { background: var(--accent-dark); }
+</style>
+
+{{-- ── FAB ────────────────────────────────────────────────── --}}
+<button id="cb-fab" onclick="cbToggle()" aria-label="Assistant IA">
+    🤖
+    <span class="cb-fab-badge">IA</span>
+</button>
+
+{{-- ── Fenêtre chat ────────────────────────────────────────── --}}
+<div id="cb-window" role="dialog" aria-label="Assistant de création de recette">
+
+    <div class="cb-header">
+        <div class="cb-header-avatar">👨‍🍳</div>
+        <div class="cb-header-info">
+            <strong>Chef IA</strong>
+            <span>Génère ta recette en quelques secondes</span>
+        </div>
+        <button class="cb-header-close" onclick="cbToggle()" aria-label="Fermer">✕</button>
+    </div>
+
+    <div class="cb-messages" id="cb-messages"></div>
+
+    <div class="cb-action-bar" id="cb-action-bar" style="display:none">
+        <p>✅ Recette prête ! Remplir le formulaire automatiquement ?</p>
+        <button class="cb-btn-fill" id="cb-btn-fill" onclick="cbFillForm()">
+            ✨ Remplir
+        </button>
+    </div>
+
+    <div class="cb-inputbar">
+        <textarea id="cb-input" placeholder="Ex : Tajine d'agneau aux pruneaux, végétarien rapide…"
+                  rows="1" onkeydown="cbKey(event)" oninput="cbResize(this)"></textarea>
+        <button class="cb-send" id="cb-send" onclick="cbSend()" aria-label="Envoyer">
+            ➤
+        </button>
+    </div>
+</div>
+
+{{-- ── Script chatbot ──────────────────────────────────────── --}}
+<script>
+(function () {
+    /* ── État ─────────────────────────────────────────── */
+    let cbOpen      = false;
+    let cbLoading   = false;
+    let cbRecipe    = null;      // dernière recette générée
+    let cbHistory   = [];        // historique messages pour l'API
+
+    const SYSTEM = `Tu es un chef cuisinier expert. Quand l'utilisateur décrit un plat ou des ingrédients,
+génère une recette complète et réponds UNIQUEMENT avec un objet JSON valide (sans markdown, sans backticks) ayant ces clés :
+{
+  "title": "string",
+  "description": "string (2-3 phrases appétissantes)",
+  "ingredients": "string (une ligne par ingrédient, ex: - 500 g d'agneau\\n- 2 oignons...)",
+  "steps": "string (une étape numérotée par ligne, ex: 1. Préchauffer le four...\\n2. ...)",
+  "prep_time": number (minutes),
+  "cook_time": number (minutes),
+  "servings": number,
+  "category_name": "string (une parmi: Entrée, Plat principal, Dessert, Soupe, Salade, Petit-déjeuner, Snack, Boisson)"
+}
+Si l'utilisateur pose une question générale sur la cuisine (sans demander une recette précise),
+réponds en texte normal (pas de JSON).`;
+
+    /* ── Helpers temps ────────────────────────────────── */
+    function now() {
+        return new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    /* ── Toggle fenêtre ───────────────────────────────── */
+    window.cbToggle = function () {
+        cbOpen = !cbOpen;
+        document.getElementById('cb-window').classList.toggle('cb-open', cbOpen);
+        if (cbOpen && document.getElementById('cb-messages').children.length === 0) {
+            cbBotMsg(
+                'Bonjour ! 👋 Décris-moi un plat ou donne-moi des ingrédients et je génère la recette complète pour toi.',
+                [
+                    'Tajine d\'agneau aux pruneaux 🍖',
+                    'Salade César végétarienne 🥗',
+                    'Brownie au chocolat 🍫',
+                    'Soupe de lentilles marocaine 🥣',
+                ]
+            );
+        }
+        if (cbOpen) setTimeout(() => document.getElementById('cb-input').focus(), 100);
+    };
+
+    /* ── Ajouter message bot ──────────────────────────── */
+    function cbBotMsg(text, chips) {
+        const wrap = document.getElementById('cb-messages');
+        const div  = document.createElement('div');
+        div.className = 'cb-msg bot';
+        div.innerHTML = `<div class="cb-bubble">${text}</div><div class="cb-timestamp">${now()}</div>`;
+        if (chips && chips.length) {
+            const chipsDiv = document.createElement('div');
+            chipsDiv.className = 'cb-chips';
+            chips.forEach(c => {
+                const btn = document.createElement('button');
+                btn.className = 'cb-chip';
+                btn.textContent = c;
+                btn.onclick = () => {
+                    document.getElementById('cb-input').value = c;
+                    cbSend();
+                };
+                chipsDiv.appendChild(btn);
+            });
+            div.appendChild(chipsDiv);
+        }
+        wrap.appendChild(div);
+        wrap.scrollTop = wrap.scrollHeight;
+    }
+
+    /* ── Ajouter message user ─────────────────────────── */
+    function cbUserMsg(text) {
+        const wrap = document.getElementById('cb-messages');
+        const div  = document.createElement('div');
+        div.className = 'cb-msg user';
+        div.innerHTML = `<div class="cb-bubble">${text}</div><div class="cb-timestamp">${now()}</div>`;
+        wrap.appendChild(div);
+        wrap.scrollTop = wrap.scrollHeight;
+    }
+
+    /* ── Typing indicator ─────────────────────────────── */
+    function cbShowTyping() {
+        const wrap = document.getElementById('cb-messages');
+        const div  = document.createElement('div');
+        div.className = 'cb-msg bot'; div.id = 'cb-typing';
+        div.innerHTML = '<div class="cb-typing"><span class="cb-dot"></span><span class="cb-dot"></span><span class="cb-dot"></span></div>';
+        wrap.appendChild(div);
+        wrap.scrollTop = wrap.scrollHeight;
+    }
+    function cbHideTyping() {
+        document.getElementById('cb-typing')?.remove();
+    }
+
+    /* ── Envoyer ──────────────────────────────────────── */
+    window.cbSend = async function () {
+        const inp  = document.getElementById('cb-input');
+        const text = inp.value.trim();
+        if (!text || cbLoading) return;
+
+        inp.value = '';
+        cbResize(inp);
+        cbUserMsg(text);
+
+        cbHistory.push({ role: 'user', content: text });
+
+        cbLoading = true;
+        document.getElementById('cb-send').disabled = true;
+        cbShowTyping();
+
+        try {
+            const res = await fetch('/chatbot/recipe', {
+                method : 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                    'Accept'      : 'application/json',
+                },
+                body: JSON.stringify({ messages: cbHistory, system: SYSTEM }),
+            });
+
+            if (!res.ok) throw new Error('Erreur serveur ' + res.status);
+            const data = await res.json();
+            const reply = data.reply || '';
+
+            cbHistory.push({ role: 'assistant', content: reply });
+
+            cbHideTyping();
+
+            // Essayer de parser en JSON (= recette)
+            try {
+                const parsed = JSON.parse(reply);
+                if (parsed.title && parsed.ingredients && parsed.steps) {
+                    cbRecipe = parsed;
+                    cbBotMsg(
+                        `✅ Recette générée : <strong>${parsed.title}</strong><br>
+                        <span style="font-size:.78rem;color:var(--muted)">
+                        ⏱ Prép. ${parsed.prep_time || '?'} min ·
+                        🍳 Cuisson ${parsed.cook_time || '?'} min ·
+                        🍽 ${parsed.servings || '?'} pers.
+                        </span><br>
+                        Clique sur <strong>✨ Remplir</strong> pour insérer dans le formulaire.`
+                    );
+                    document.getElementById('cb-action-bar').style.display = 'flex';
+                } else {
+                    cbBotMsg(reply);
+                }
+            } catch {
+                // Texte normal (pas de JSON)
+                cbBotMsg(reply);
+            }
+
+        } catch (err) {
+            cbHideTyping();
+            cbBotMsg('❌ Une erreur est survenue. Réessaie dans quelques secondes.');
+            console.error('[ChatBot]', err);
+        } finally {
+            cbLoading = false;
+            document.getElementById('cb-send').disabled = false;
+        }
+    };
+
+    /* ── Remplir le formulaire ────────────────────────── */
+    window.cbFillForm = function () {
+        if (!cbRecipe) return;
+
+        // Titre
+        const titleEl = document.getElementById('title');
+        if (titleEl) { titleEl.value = cbRecipe.title || ''; sfCtr('title', 120); }
+
+        // Description
+        const descEl = document.querySelector('[name="description"]');
+        if (descEl) { descEl.value = cbRecipe.description || ''; sfCtr('description', 800); }
+
+        // Ingrédients
+        const ingEl = document.querySelector('[name="ingredients"]');
+        if (ingEl) ingEl.value = cbRecipe.ingredients || '';
+
+        // Étapes
+        const stepsEl = document.querySelector('[name="steps"]');
+        if (stepsEl) stepsEl.value = cbRecipe.steps || '';
+
+        // Temps
+        const prepEl = document.querySelector('[name="prep_time"]');
+        if (prepEl && cbRecipe.prep_time) prepEl.value = cbRecipe.prep_time;
+
+        const cookEl = document.querySelector('[name="cook_time"]');
+        if (cookEl && cbRecipe.cook_time) cookEl.value = cbRecipe.cook_time;
+
+        const servEl = document.querySelector('[name="servings"]');
+        if (servEl && cbRecipe.servings) servEl.value = cbRecipe.servings;
+
+        // Catégorie — matcher par nom (case-insensitive)
+        if (cbRecipe.category_name) {
+            const catSel = document.querySelector('[name="category_id"]');
+            if (catSel) {
+                const catName = cbRecipe.category_name.toLowerCase();
+                for (const opt of catSel.options) {
+                    if (opt.text.toLowerCase().includes(catName) || catName.includes(opt.text.toLowerCase())) {
+                        catSel.value = opt.value;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Fermer chatbot + aller au slide 1
+        cbToggle();
+        if (typeof sfGo !== 'undefined') {
+            // Retourner au step 1 pour vérification
+            window.cur = 1;
+            if (typeof render !== 'undefined') render();
+        }
+
+        // Toast de confirmation
+        cbToast('✅ Formulaire rempli ! Vérifie et ajuste si besoin.');
+    };
+
+    /* ── Toast ────────────────────────────────────────── */
+    function cbToast(msg) {
+        const t = document.createElement('div');
+        t.textContent = msg;
+        Object.assign(t.style, {
+            position:'fixed', bottom:'1.8rem', left:'50%', transform:'translateX(-50%)',
+            background:'var(--text-dark)', color:'#fff', padding:'.65rem 1.4rem',
+            borderRadius:'999px', fontSize:'.83rem', fontFamily:'var(--font-b)',
+            boxShadow:'0 4px 18px rgba(0,0,0,.22)', zIndex:'9999',
+            transition:'opacity .4s', opacity:'1', whiteSpace:'nowrap',
+        });
+        document.body.appendChild(t);
+        setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 400); }, 3200);
+    }
+
+    /* ── Resize textarea ──────────────────────────────── */
+    window.cbResize = function (el) {
+        el.style.height = 'auto';
+        el.style.height = Math.min(el.scrollHeight, 90) + 'px';
+    };
+
+    /* ── Touche Entrée ────────────────────────────────── */
+    window.cbKey = function (e) {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); cbSend(); }
+    };
+
+})();
 </script>
 </body>
 </html>

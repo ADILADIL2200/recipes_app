@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthApiController;
+use App\Http\Controllers\Api\ChatbotController;
 
 // ── Auth API ──────────────────────────────────────────────
 Route::prefix('auth')->group(function () {
@@ -14,3 +15,4 @@ Route::prefix('auth')->group(function () {
         Route::get('/me',      [AuthApiController::class, 'me'])->name('api.me');
     });
 });
+
