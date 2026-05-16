@@ -57,9 +57,6 @@ Route::middleware('auth')->group(function () {
 Route::get('/recipes/{recipe}', [RecipeController::class, 'show'])->name('recipes.show');
 
 // ====================== ADMIN ======================
-// NOTE: On utilise un middleware inline au lieu de 'can:admin'
-// car 'can:admin' nécessite une Gate définie dans AuthServiceProvider.
-// Le AdminController vérifie lui-même le rôle dans __construct().
 Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
