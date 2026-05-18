@@ -86,3 +86,4 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::patch ('/recipes/{recipe}/toggle', [AdminController::class, 'toggleRecipe'])  ->name('recipes.toggle');
     Route::delete('/recipes/{recipe}',        [AdminController::class, 'destroyRecipe']) ->name('recipes.destroy');
 });
+Route::post('/chat', [RecipeController::class, 'chat']);

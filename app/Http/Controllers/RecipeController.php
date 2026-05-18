@@ -407,10 +407,104 @@ class RecipeController extends Controller
 
     return back()->with('success', 'Recipe added to favorites');
 }
+   public function chat(Request $request)
+    {
+        // ── Validation ────────────────────────────────────────
+        $validated = $request->validate([
+            'messages'          => ['required', 'array', 'min:1', 'max:20'],
+            'messages.*.role'   => ['required', 'in:user,assistant'],
+            'messages.*.content'=> ['required', 'string', 'max:2000'],
+            'system'            => ['nullable', 'string', 'max:5000'],
+        ]);
 
+        // ── Build messages array ───────────────────────────────
+        $messages = [];
 
+        // System prompt (from frontend or default)
+        $systemPrompt = $validated['system'] ?? $this->defaultSystemPrompt();
+        $messages[] = [
+            'role'    => 'system',
+            'content' => $systemPrompt,
+        ];
 
+        // Conversation history
+        foreach ($validated['messages'] as $msg) {
+            $messages[] = [
+                'role'    => $msg['role'],
+                'content' => $msg['content'],
+            ];
+        }
 
+        // ── Call OpenRouter ────────────────────────────────────
+        $response = Http::timeout(30)
+            ->withHeaders([
+                'Authorization'    => 'Bearer ' . '',
+                'HTTP-Referer'     => env('APP_URL', 'http://localhost'),
+                'X-Title'          => env('APP_NAME', 'Cuisto'),
+                'Content-Type'     => 'application/json',
+            ])
+            ->post('https://openrouter.ai/api/v1/chat/completions', [
+                'model'       => 'openai/gpt-4o-mini',   // fast + cheap, swap freely
+                'messages'    => $messages,
+                'max_tokens'  => 1000,
+                'temperature' => 0.7,
+            ]);
 
+        // ── Handle errors ──────────────────────────────────────
+        if ($response->failed()) {
+            return response()->json([
+                'error' => 'OpenRouter error: ' . $response->status(),
+            ], 502);
+        }
 
+        $data = $response->json();
+
+        $reply = $data['choices'][0]['message']['content'] ?? null;
+
+        if (!$reply) {
+            return response()->json([
+                'error' => 'Empty response from model.',
+            ], 502);
+        }
+
+        // ── Return ─────────────────────────────────────────────
+        return response()->json([
+            'reply' => trim($reply),
+        ]);
+    }
+
+    // ── Default system prompt (fallback) ──────────────────────
+    private function defaultSystemPrompt(): string
+    {
+        return <<<PROMPT
+Tu es un chef cuisinier expert. Quand l'utilisateur décrit un plat ou des ingrédients,
+génère une recette complète et réponds UNIQUEMENT avec un objet JSON valide (sans markdown, sans backticks) ayant ces clés :
+{
+  "title": "string",
+  "description": "string (2-3 phrases appétissantes)",
+  "ingredients": "string (une ligne par ingrédient, ex: - 500 g d'agneau\\n- 2 oignons...)",
+  "steps": "string (une étape numérotée par ligne, ex: 1. Préchauffer le four...\\n2. ...)",
+  "prep_time": number (minutes),
+  "cook_time": number (minutes),
+  "servings": number,
+  "category_name": "string (une parmi: Entrée, Plat principal, Dessert, Soupe, Salade, Petit-déjeuner, Snack, Boisson)"
 }
+Si l'utilisateur pose une question générale sur la cuisine (sans demander une recette précise),
+réponds en texte normal (pas de JSON).
+PROMPT;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

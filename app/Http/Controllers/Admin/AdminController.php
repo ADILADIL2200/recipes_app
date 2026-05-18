@@ -13,29 +13,25 @@ use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
-    // ── Middleware admin sur tout le contrôleur ──────────────────
-    public function __construct()
+    private function ensureAdmin(): void
     {
-        $this->middleware('auth');
-        // On vérifie le rôle manuellement (pas de middleware 'can' configuré par défaut)
-        $this->middleware(function ($request, $next) {
-            if (auth()->user()?->role !== 'admin') {
-                abort(403, 'Accès réservé aux administrateurs.');
-            }
-            return $next($request);
-        });
+        if (auth()->user()?->role !== 'admin') {
+            abort(403, 'Accès réservé aux administrateurs.');
+        }
     }
 
     // ── Dashboard ─────────────────────────────────────
     public function dashboard()
     {
+        $this->ensureAdmin();
+
         $stats = [
-            'total_users'      => User::count(),
-            'total_recipes'    => Recipe::count(),
-            'total_categories' => Category::count(),
-            'total_tags'       => Tag::count(),
-            'pending_recipes'  => Recipe::where('is_published', false)->count(),
-            'published_recipes'=> Recipe::where('is_published', true)->count(),
+            'total_users'       => User::count(),
+            'total_recipes'     => Recipe::count(),
+            'total_categories'  => Category::count(),
+            'total_tags'        => Tag::count(),
+            'pending_recipes'   => Recipe::where('is_published', false)->count(),
+            'published_recipes' => Recipe::where('is_published', true)->count(),
         ];
 
         $recentUsers   = User::latest()->limit(5)->get();
@@ -47,12 +43,16 @@ class AdminController extends Controller
     // ── Users ─────────────────────────────────────────
     public function users()
     {
+        $this->ensureAdmin();
+
         $users = User::latest()->paginate(15);
         return view('admin.users.index', compact('users'));
     }
 
     public function toggleUser(User $user)
     {
+        $this->ensureAdmin();
+
         if ($user->id === auth()->id()) {
             return back()->with('error', 'Vous ne pouvez pas modifier votre propre rôle.');
         }
@@ -66,11 +66,12 @@ class AdminController extends Controller
 
     public function destroyUser(User $user)
     {
+        $this->ensureAdmin();
+
         if ($user->id === auth()->id()) {
             return back()->with('error', 'Vous ne pouvez pas vous supprimer.');
         }
 
-        // Supprimer les recettes et fichiers associés
         foreach ($user->recipes as $recipe) {
             if ($recipe->image) {
                 Storage::disk('public')->delete($recipe->image);
@@ -92,6 +93,8 @@ class AdminController extends Controller
     // ── Recipes (admin) ───────────────────────────────
     public function recipes()
     {
+        $this->ensureAdmin();
+
         $recipes = Recipe::with(['user', 'category'])
             ->latest()
             ->paginate(20);
@@ -101,6 +104,8 @@ class AdminController extends Controller
 
     public function toggleRecipe(Recipe $recipe)
     {
+        $this->ensureAdmin();
+
         $recipe->update(['is_published' => !$recipe->is_published]);
         $status = $recipe->is_published ? 'publiée' : 'dépubliée';
         return back()->with('success', "Recette {$status}.");
@@ -108,6 +113,8 @@ class AdminController extends Controller
 
     public function destroyRecipe(Recipe $recipe)
     {
+        $this->ensureAdmin();
+
         if ($recipe->image) {
             Storage::disk('public')->delete($recipe->image);
         }
@@ -123,12 +130,16 @@ class AdminController extends Controller
     // ── Categories ────────────────────────────────────
     public function categories()
     {
+        $this->ensureAdmin();
+
         $categories = Category::withCount('recipes')->latest()->paginate(15);
         return view('admin.categories.index', compact('categories'));
     }
 
     public function storeCategory(Request $request)
     {
+        $this->ensureAdmin();
+
         $request->validate([
             'name'        => 'required|string|max:255|unique:categories,name',
             'description' => 'nullable|string|max:500',
@@ -147,6 +158,8 @@ class AdminController extends Controller
 
     public function updateCategory(Request $request, Category $category)
     {
+        $this->ensureAdmin();
+
         $request->validate([
             'name'        => 'required|string|max:255|unique:categories,name,' . $category->id,
             'description' => 'nullable|string|max:500',
@@ -165,7 +178,8 @@ class AdminController extends Controller
 
     public function destroyCategory(Category $category)
     {
-        // Remettre les recettes sans catégorie à null
+        $this->ensureAdmin();
+
         $category->recipes()->update(['category_id' => null]);
         $category->delete();
         return back()->with('success', 'Catégorie supprimée.');
@@ -174,12 +188,16 @@ class AdminController extends Controller
     // ── Tags ──────────────────────────────────────────
     public function tags()
     {
+        $this->ensureAdmin();
+
         $tags = Tag::withCount('recipes')->latest()->paginate(15);
         return view('admin.tags.index', compact('tags'));
     }
 
     public function storeTag(Request $request)
     {
+        $this->ensureAdmin();
+
         $request->validate([
             'name' => 'required|string|max:255|unique:tags,name',
         ]);
@@ -194,6 +212,8 @@ class AdminController extends Controller
 
     public function updateTag(Request $request, Tag $tag)
     {
+        $this->ensureAdmin();
+
         $request->validate([
             'name' => 'required|string|max:255|unique:tags,name,' . $tag->id,
         ]);
@@ -208,6 +228,8 @@ class AdminController extends Controller
 
     public function destroyTag(Tag $tag)
     {
+        $this->ensureAdmin();
+
         $tag->recipes()->detach();
         $tag->delete();
         return back()->with('success', 'Tag supprimé.');
